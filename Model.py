@@ -65,7 +65,9 @@ class CustomModelCheckpoint(Callback):
             print ("-------------------------------------------------------\n")
 
 def loadModel(directory):
-   model = load_model(directory,
+   from tensorflow import keras
+
+   model = keras.models.load_model(directory,
                              custom_objects={'fbeta_score': fbeta_score, 'rmse': rmse,
                                              'recall': recall, 'precision': precision,
                                              'ccc': ccc})
