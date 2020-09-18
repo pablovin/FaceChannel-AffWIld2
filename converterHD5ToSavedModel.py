@@ -29,4 +29,6 @@ savedModel = "/home/pablovin/experiments/facechannel/weights.00-0.27.hdf5"
 
 exportModel = "/home/pablovin/experiments/facechannel/allFramesTrained"
 
-to_savedmodel(savedModel, exportModel)
+import tensorflow as tf
+model = tf.keras.models.load_model(savedModel)
+tf.saved_model.save(model, exportModel)
