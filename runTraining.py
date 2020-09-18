@@ -96,7 +96,7 @@ validationLabelDirectory = "/home/pablovin/dataset/affwild2/annotations/VA_Set/V
 saveExperiment = "/home/pablovin/experiments/facechannel"
 
 
-savedModel = "/home/pablo/Documents/Workspace/FaceChannel/TrainedNetworks/DimensionalFaceChannel.h5"
+savedModel = "/home/pablovin/experiments/facechannel/weights.00-0.27.hdf5"
 
 
 imageSize = (112,112)
@@ -160,9 +160,9 @@ print ("Training:" + str(len(trainingLabels)))
 print ("Testing:" + str(len(testingSamples)))
 print ("Validation:" + str(len(validationLabels)))
 
-model = Model.buildModel(inputShape, 8)
+# model = Model.buildModel(inputShape, 8)
 
-# model = Model.loadModel(savedModel)
+model = Model.loadModel(savedModel)
 
 # Model.evaluate(model,  [validationSamples, validationLabels], imageSize)
 
