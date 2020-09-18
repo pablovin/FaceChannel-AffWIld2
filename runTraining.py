@@ -150,8 +150,8 @@ for file in os.listdir(trainingLabelDirectory):
 
 trainingSamples,trainingLabels = shuffleData(trainingSamples, trainingLabels)
 
-trainingSamples = trainingSamples
-trainingLabels = trainingLabels
+trainingSamples = trainingSamples[0:1000]
+trainingLabels = trainingLabels[0:1000]
 
 validationSamples = validationSamples[0:1000]
 validationLabels = validationLabels[0:1000]
