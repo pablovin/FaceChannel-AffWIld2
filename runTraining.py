@@ -100,7 +100,7 @@ savedModel = "/home/pablo/Documents/Workspace/FaceChannel/TrainedNetworks/Dimens
 
 
 imageSize = (112,112)
-inputShape = numpy.array((3, 112, 112)).astype(numpy.int32)
+inputShape = numpy.array((112, 112, 3)).astype(numpy.int32)
 
 trainingSamples = []
 trainingLabels = []
