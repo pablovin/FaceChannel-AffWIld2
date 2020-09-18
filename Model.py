@@ -198,7 +198,7 @@ def train (model, trainSamples, testSamples, validationSamples, imgSize, experim
     #                             verbose=1, save_best_only=True, save_weights_only=False, mode='auto', period=1)
     #
 
-    reduce_lr = ReduceLROnPlateau(monitor='val_lossval_loss', factor=0.2, patience=5, min_lr=0.0001, verbose=1)
+    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=5, min_lr=0.0001, verbose=1)
 
     # print "Steps per epoch:", len(dataPointsTrain.dataX) // self.batchSize
 
