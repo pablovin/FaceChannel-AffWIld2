@@ -96,7 +96,7 @@ validationLabelDirectory = "/home/pablovin/dataset/affwild2/annotations/VA_Set/V
 saveExperiment = "/home/pablovin/experiments/facechannel"
 
 
-savedModel = "/home/pablovin/experiments/facechannel/weights.00-0.27.hdf5"
+savedModel = "/home/pablovin/experiments/facechannel/weights.01-0.02.h5"
 
 
 imageSize = (112,112)
@@ -150,8 +150,8 @@ for file in os.listdir(trainingLabelDirectory):
 
 trainingSamples,trainingLabels = shuffleData(trainingSamples, trainingLabels)
 
-trainingSamples = trainingSamples
-trainingLabels = trainingLabels
+trainingSamples = trainingSamples[0:1000]
+trainingLabels = trainingLabels[0:1000]
 
 validationSamples = validationSamples[0:1000]
 validationLabels = validationLabels[0:1000]

@@ -28,6 +28,8 @@ from metrics import fbeta_score, recall, precision, rmse, ccc
 
 import keras
 
+import tensorflow as tf
+
 
 class CustomModelCheckpoint(Callback):
 
@@ -56,7 +58,8 @@ class CustomModelCheckpoint(Callback):
 
             # Here we save the original one
 
-            #self.model_for_saving.save_weights(self.path.format(epoch=epoch, val_loss=loss), overwrite=True)
+            # self.model_for_saving.save_weights(self.path.format(epoch=epoch, val_loss=loss), overwrite=True)
+            tf.saved_model.save(self.path.format(epoch=epoch, val_loss=loss))
             self.model.save(self.path.format(epoch=epoch, val_loss=loss))
         else:
             print ("-------------------------------------------------------\n")
@@ -191,8 +194,7 @@ def train (model, trainSamples, testSamples, validationSamples, imgSize, experim
                   optimizer=optimizer,
                   metrics=[ccc])
 
-    filepath = experimentFolder + "/weights.best.hdf5"
-    checkpointsString = experimentFolder + '/weights.{epoch:02d}-{val_loss:.2f}.hdf5'
+    checkpointsString = experimentFolder + '/weights.{epoch:02d}-{val_loss:.2f}'
 
     checkPoint = CustomModelCheckpoint(model, checkpointsString)
 
