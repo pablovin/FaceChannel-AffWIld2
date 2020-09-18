@@ -128,12 +128,12 @@ def buildModel(inputShape, numberOfOutputs):
     conv10 = Conv2D(nch, (3, 3), padding="same", kernel_initializer="glorot_uniform", activation="relu",
                     name="conv10")(conv9)
 
-    conv10_inhibition = Conv2D(nch, (3, 3), padding="same", kernel_initializer="glorot_uniform", activation="relu",
-                    name="conv10_Inhibition")(conv9)
+    # conv10_inhibition = Conv2D(nch, (3, 3), padding="same", kernel_initializer="glorot_uniform", activation="relu",
+    #                 name="conv10_Inhibition")(conv9)
+    #
+    # inhibition = ShuntingInhibition(name="inhibitoryLayer")([conv10, conv10_inhibition])
 
-    inhibition = ShuntingInhibition(name="inhibitoryLayer")([conv10, conv10_inhibition])
-
-    mp4 = MaxPooling2D(pool_size=(2, 2))(inhibition)
+    mp4 = MaxPooling2D(pool_size=(2, 2))(conv10)
     drop4 = Dropout(0.25)(mp4)
 
     flatten = Flatten()(drop4)
