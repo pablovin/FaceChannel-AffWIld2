@@ -35,9 +35,9 @@ def preProcess(dataLocation, imageSize, grayScale):
        data = cv2.cvtColor(data, cv2.COLOR_BGR2GRAY)
        data = numpy.expand_dims(data, axis=0)
 
-    else:
-        data = numpy.swapaxes(data, 1, 2)
-        data = numpy.swapaxes(data, 0, 1)
+    # else:
+    #     data = numpy.swapaxes(data, 1, 2)
+    #     data = numpy.swapaxes(data, 0, 1)
 
     data = data.astype('float32')
 

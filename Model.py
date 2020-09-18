@@ -77,7 +77,7 @@ def loadModel(directory):
 
 def buildModel(inputShape, numberOfOutputs):
 
-    keras.backend.set_image_data_format("channels_first")
+    # keras.backend.set_image_data_format("channels_first")
 
     nch = 256
 
