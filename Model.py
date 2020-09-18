@@ -143,8 +143,6 @@ def buildModel(inputShape, numberOfOutputs):
     valence_output = Dense(units=1, activation='linear', name='valence_output')(drop5)
 
     model = Model(inputs=inputLayer, outputs=[arousal_output, valence_output])
-
-
     return model
 
 def evaluate(model, validationSamples, imgSize):
