@@ -218,3 +218,5 @@ def train (model, trainSamples, testSamples, validationSamples, imgSize, experim
                                                 callbacks=[checkPoint, reduce_lr],
 
                                                 )
+
+    model.save(experimentFolder + '/FinalModel')
