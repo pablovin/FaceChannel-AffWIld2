@@ -24,11 +24,11 @@ def preProcess(dataLocation, imageSize, grayScale):
 
 
     try:
-        frame = cv2.imread(dataLocation)
-        data = numpy.array(cv2.resize(frame, imageSize))
+        data = cv2.imread(dataLocation)
+        # data = numpy.array(cv2.resize(frame, imageSize))
     except:
-        frame = cv2.imread("/home/pablo/Documents/Datasets/affwild2/cropped_aligned/video83/00360.jpg")
-        data = numpy.array(cv2.resize(frame, imageSize))
+        data = cv2.imread("/home/pablovin/dataset/affwild2/cropped_aligned/video83/00360.jpg")
+        # data = numpy.array(cv2.resize(frame, imageSize))
 
 
     if grayScale:
