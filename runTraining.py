@@ -91,8 +91,8 @@ def preProcess(dataLocation, imageSize, grayScale):
 #GCLOUD
 videoDirectory = "/home/pablovin/dataset/affwild2/cropped_aligned"
 
-trainingLabelDirectory = "/home/pablovin/dataset/affwild2/annotations-20200917T112933Z-001/annotations/VA_Set/Training_Set"
-validationLabelDirectory = "/home/pablovin/dataset/affwild2/annotations-20200917T112933Z-001/annotations/VA_Set/Validation_Set"
+trainingLabelDirectory = "/home/pablovin/dataset/affwild2/annotations/VA_Set/Training_Set"
+validationLabelDirectory = "/home/pablovin/dataset/affwild2/annotations/VA_Set/Validation_Set"
 saveExperiment = "/home/pablovin/experiments/facechannel"
 
 
