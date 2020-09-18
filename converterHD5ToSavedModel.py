@@ -25,10 +25,10 @@ def to_savedmodel(model, export_path):
     )
     builder.save()
 
-savedModel = "/home/pablovin/experiments/facechannel/weights.00-0.27.hdf5"
+savedModel = "/home/pablovin/experiments/facechannel/weights.01-0.02.h5"
 
 exportModel = "/home/pablovin/experiments/facechannel/allFramesTrained"
 
 import tensorflow as tf
-model = tf.keras.models.load_model(savedModel, save_format='h5')
+model = tf.keras.models.load_model(savedModel)
 tf.saved_model.save(model, exportModel)
