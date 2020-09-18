@@ -116,9 +116,7 @@ def buildModel(inputShape, numberOfOutputs):
 
     mp3 = MaxPooling2D(pool_size=(2, 2))(conv7)
     drop3 = Dropout(0.25)(mp3)
-
     # Conv 8 and 9 and 10
-
     conv8 = Conv2D(nch, (3, 3), padding="same", kernel_initializer="glorot_uniform", activation="relu",
                    name="Vision_conv8")(drop3)
 
