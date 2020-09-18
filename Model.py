@@ -57,7 +57,7 @@ class CustomModelCheckpoint(Callback):
             # Here we save the original one
 
             #self.model_for_saving.save_weights(self.path.format(epoch=epoch, val_loss=loss), overwrite=True)
-            self.model.save(self.path.format(epoch=epoch, val_loss=loss)+".hdf5")
+            self.model.save(self.path.format(epoch=epoch, val_loss=loss))
         else:
             print ("-------------------------------------------------------\n")
             print("-- not IMPROVED --\n")
