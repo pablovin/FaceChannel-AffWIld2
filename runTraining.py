@@ -77,11 +77,24 @@ def preProcess(dataLocation, imageSize, grayScale):
     return data
 
 
-validationData = "/home/pablo/Documents/Datasets/affwild2/cropped_aligned"
-validationLabelDirectory = "/home/pablo/Documents/Datasets/affwild2/annotations-20200917T112933Z-001/annotations/VA_Set/Validation_Set"
-saveExperiment = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2"
+#LOCAL
+# videoDirectory = "/home/pablo/Documents/Datasets/affwild2/cropped_aligned"
+#
+# trainingLabelDirectory = "/home/pablo/Documents/Datasets/affwild2/annotations-20200917T112933Z-001/annotations/VA_Set/Training_Set"
+# validationLabelDirectory = "/home/pablo/Documents/Datasets/affwild2/annotations-20200917T112933Z-001/annotations/VA_Set/Validation_Set"
+# saveExperiment = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2"
+#
+#
+# savedModel = "/home/pablo/Documents/Workspace/FaceChannel/TrainedNetworks/DimensionalFaceChannel.h5"
 
-trainingLabelDirectory = "/home/pablo/Documents/Datasets/affwild2/annotations-20200917T112933Z-001/annotations/VA_Set/Training_Set"
+
+#GCLOUD
+videoDirectory = "/home/pablovin/dataset/affwild2/cropped_aligned"
+
+trainingLabelDirectory = "/home/pablovin/dataset/affwild2/annotations-20200917T112933Z-001/annotations/VA_Set/Training_Set"
+validationLabelDirectory = "/home/pablovin/dataset/affwild2/annotations-20200917T112933Z-001/annotations/VA_Set/Validation_Set"
+saveExperiment = "/home/pablovin/experiments/facechannel"
+
 
 savedModel = "/home/pablo/Documents/Workspace/FaceChannel/TrainedNetworks/DimensionalFaceChannel.h5"
 
@@ -111,7 +124,7 @@ for file in os.listdir(validationLabelDirectory):
                 while not len(str(fileNumber)) == 5:
                     fileNumber = "0"+fileNumber
 
-                fileName = validationData + "/" + file.split(".")[0] + "/"+str(fileNumber)+".jpg"
+                fileName = videoDirectory + "/" + file.split(".")[0] + "/" + str(fileNumber) + ".jpg"
                 validationSamples.append(fileName)
                 validationLabels.append([float(arousal),float(valence)])
         rowNumber +=1
@@ -130,15 +143,15 @@ for file in os.listdir(trainingLabelDirectory):
                 while not len(str(fileNumber)) == 5:
                     fileNumber = "0"+fileNumber
 
-                fileName = validationData + "/" + file.split(".")[0] + "/"+str(fileNumber)+".jpg"
+                fileName = videoDirectory + "/" + file.split(".")[0] + "/" + str(fileNumber) + ".jpg"
                 trainingSamples.append(fileName)
                 trainingLabels.append([float(arousal),float(valence)])
         rowNumber +=1
 
 trainingSamples,trainingLabels = shuffleData(trainingSamples, trainingLabels)
 
-trainingSamples = trainingSamples[0:50000]
-trainingLabels = trainingLabels[0:50000]
+trainingSamples = trainingSamples[0:100000]
+trainingLabels = trainingLabels[0:100000]
 
 validationSamples = validationSamples[0:1000]
 validationLabels = validationLabels[0:1000]
