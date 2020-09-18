@@ -60,7 +60,7 @@ class CustomModelCheckpoint(Callback):
 
             # self.model_for_saving.save_weights(self.path.format(epoch=epoch, val_loss=loss), overwrite=True)
             # tf.saved_model.save(self.path.format(epoch=epoch, val_loss=loss))
-            self.model.save(self.path.format(epoch=epoch, val_loss=loss))
+            self.model_for_saving.save(self.path.format(epoch=epoch, val_loss=loss))
         else:
             print ("-------------------------------------------------------\n")
             print("-- not IMPROVED --\n")
