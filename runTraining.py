@@ -160,9 +160,9 @@ print ("Training:" + str(len(trainingLabels)))
 print ("Testing:" + str(len(testingSamples)))
 print ("Validation:" + str(len(validationLabels)))
 
-# model = Model.buildModel(inputShape, 8)
+model = Model.buildModel(inputShape, 8)
 
-model = Model.loadModel(savedModel)
+# model = Model.loadModel(savedModel)
 
 # Model.evaluate(model,  [validationSamples, validationLabels], imageSize)
 
