@@ -8,10 +8,10 @@ import random
 
 import os
 
-import tensorflow as tf
-config = tf.ConfigProto()
-config.gpu_options.allow_growth=True
-sess = tf.Session(config=config)
+# import tensorflow as tf
+# config = tf.ConfigProto()
+# config.gpu_options.allow_growth=True
+# sess = tf.Session(config=config)
 
 
 from imgaug import augmenters as iaa
