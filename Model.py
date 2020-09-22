@@ -61,7 +61,7 @@ class CustomModelCheckpoint(Callback):
             # self.model_for_saving.save_weights(self.path.format(epoch=epoch, val_loss=loss), overwrite=True)
             # tf.saved_model.save(self.path.format(epoch=epoch, val_loss=loss))
             self.model_for_saving.save(self.path.format(epoch=epoch, val_loss=loss))
-            self.model_for_saving.save(self.folder +"/BestModel")
+            # self.model_for_saving.save(self.folder +"/BestModel")
         else:
             print ("-------------------------------------------------------\n")
             print("-- not IMPROVED --\n")
@@ -211,7 +211,7 @@ def train (model, trainSamples, testSamples, validationSamples, imgSize, experim
     model.summary()
 
     batchSize = 64
-    epoches = 10
+    epoches = 40
 
     optimizer = SGD(learning_rate=0.1, momentum=0.1, nesterov=False)
     # optimizer = Adam()
