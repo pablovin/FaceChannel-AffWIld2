@@ -130,7 +130,7 @@ def buildModel(inputShape, numberOfOutputs):
 
     conv6 = Conv2D(int(nch / 2), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation=None,
                    name="Vision_conv6")(conv5)
-    conv6 = BatchNormalization()(conv6)
+    # conv6 = BatchNormalization()(conv6)
 
     conv6 = Activation("relu")(conv6)
 
@@ -172,7 +172,7 @@ def buildModel(inputShape, numberOfOutputs):
 
     flatten = Flatten()(drop4)
 
-    dense = Dense(200, activation="relu", name="denseLayer")(flatten)
+    dense = Dense(600, activation="relu", name="denseLayer")(flatten)
     drop5 = Dropout(0.5)(dense)
 
     arousal_output = Dense(units=1, activation='linear', name='arousal_output')(drop5)
@@ -211,11 +211,10 @@ def train (model, trainSamples, testSamples, validationSamples, imgSize, experim
     model.summary()
 
     batchSize = 64
-    epoches = 20
+    epoches = 40
 
     optimizer = SGD(learning_rate=0.1, momentum=0.1, nesterov=False)
     # optimizer = Adam()
-
 
     trainGenerator = ArousalValenceGenerator(trainSamples[0], trainSamples[1], batchSize, imgSize, grayScale=False)
 
@@ -250,7 +249,7 @@ def train (model, trainSamples, testSamples, validationSamples, imgSize, experim
                                                 use_multiprocessing=True,
                                                 workers=30,
                                                 max_queue_size=3591,
-                                                callbacks=[checkPoint,reduce_lr,tensorboard_callback],
+                                                callbacks=[checkPoint,tensorboard_callback],
 
                                                 )
 

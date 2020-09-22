@@ -114,6 +114,7 @@ def bagIt(value, bags):
 # config = tf.ConfigProto()
 # config.gpu_options.allow_growth=True
 # sess = tf.Session(config=config)
+#
 # videoDirectory = "/home/pablo/Documents/Datasets/affwild2/cropped_aligned"
 #
 # trainingLabelDirectory = "/home/pablo/Documents/Datasets/affwild2/annotations-20200917T112933Z-001/annotations/VA_Set/Training_Set"
@@ -235,6 +236,11 @@ normalizedTrainingLabels = numpy.array(normalizedTrainingLabels)
 trainingSamples = normalizedTrainingSamples
 trainingLabels = normalizedTrainingLabels
 
+
+trainingSamples = normalizedTrainingSamples
+trainingLabels = normalizedTrainingLabels
+
+
 validationSamples = validationSamples[0:1000]
 validationLabels = validationLabels[0:1000]
 
@@ -243,9 +249,9 @@ validationLabels = numpy.array(validationLabels)
 
 # createHistogram(arousals, valences, "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/dataVis", "training_all")
 
-# createHistogram(normalizedTrainingLabels[:,0], normalizedTrainingLabels[:, 1], "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/dataVis", "training_normalized")
-# createHistogram(trainingLabels[:,0], trainingLabels[:, 1], "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/dataVis", "training_10k")
-# createHistogram(validationLabels[:,0], validationLabels[:, 1], "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/dataVis", "validation_10k")
+createHistogram(normalizedTrainingLabels[:,0], normalizedTrainingLabels[:, 1], "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/dataVis", "training_normalized")
+createHistogram(trainingLabels[:,0], trainingLabels[:, 1], "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/dataVis", "training_10k")
+createHistogram(validationLabels[:,0], validationLabels[:, 1], "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/dataVis", "validation_10k")
 # print ("Len arousals:" + str(len(arousals)))
 # input("here")
 print ("Training:" + str(len(trainingLabels)))
@@ -257,9 +263,7 @@ model = Model.buildModel(inputShape, 8)
 # model = Model.loadModel(savedModel)
 
 # Model.evaluate(model,  [validationSamples, validationLabels], imageSize)
-#
+
 Model.train(model, [trainingSamples, trainingLabels], [testingSamples,testingLabels], [validationSamples, validationLabels], imageSize, saveExperiment, logFolder)
 
-print ("Evaluating...")
-# model = Model.load_model(saveExperiment+"/BestModel")
 Model.evaluate(model,  [validationSamples, validationLabels], imageSize)
