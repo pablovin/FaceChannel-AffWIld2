@@ -232,8 +232,8 @@ normalizedTrainingLabels = numpy.array(normalizedTrainingLabels)
 #
 # print ("Shape labels:" + str(normalizedTrainingLabels.shape))
 
-trainingSamples = normalizedTrainingSamples[0:10000]
-trainingLabels = normalizedTrainingLabels[0:10000]
+trainingSamples = normalizedTrainingSamples
+trainingLabels = normalizedTrainingLabels
 
 validationSamples = validationSamples[0:1000]
 validationLabels = validationLabels[0:1000]
