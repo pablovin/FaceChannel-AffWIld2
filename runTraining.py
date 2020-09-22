@@ -248,10 +248,10 @@ trainingLabels = numpy.array(trainingLabels)
 validationLabels = numpy.array(validationLabels)
 
 # createHistogram(arousals, valences, "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/dataVis", "training_all")
-
-createHistogram(normalizedTrainingLabels[:,0], normalizedTrainingLabels[:, 1], "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/dataVis", "training_normalized")
-createHistogram(trainingLabels[:,0], trainingLabels[:, 1], "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/dataVis", "training_10k")
-createHistogram(validationLabels[:,0], validationLabels[:, 1], "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/dataVis", "validation_10k")
+#
+# createHistogram(normalizedTrainingLabels[:,0], normalizedTrainingLabels[:, 1], "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/dataVis", "training_normalized")
+# createHistogram(trainingLabels[:,0], trainingLabels[:, 1], "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/dataVis", "training_10k")
+# createHistogram(validationLabels[:,0], validationLabels[:, 1], "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/dataVis", "validation_10k")
 # print ("Len arousals:" + str(len(arousals)))
 # input("here")
 print ("Training:" + str(len(trainingLabels)))
