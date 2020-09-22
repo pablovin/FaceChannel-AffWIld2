@@ -253,5 +253,5 @@ def train (model, trainSamples, testSamples, validationSamples, imgSize, experim
 
                                                 )
 
-    model = load_model(experimentFolder+"/BestModel")
+    # model = load_model(experimentFolder+"/BestModel")
     model.save(experimentFolder + '/FinalModel')
