@@ -211,7 +211,7 @@ def train (model, trainSamples, testSamples, validationSamples, imgSize, experim
     model.summary()
 
     batchSize = 64
-    epoches = 40
+    epoches = 10
 
     optimizer = SGD(learning_rate=0.1, momentum=0.1, nesterov=False)
     # optimizer = Adam()
