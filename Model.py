@@ -249,7 +249,7 @@ def train (model, trainSamples, testSamples, validationSamples, imgSize, experim
                                                 use_multiprocessing=True,
                                                 workers=30,
                                                 max_queue_size=3591,
-                                                callbacks=[checkPoint,tensorboard_callback],
+                                                callbacks=[checkPoint,reduce_lr, tensorboard_callback],
 
                                                 )
 
