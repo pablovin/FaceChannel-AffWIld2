@@ -35,12 +35,12 @@ class CustomModelCheckpoint(Callback):
 
     previousAcc = 0
 
-    def __init__(self, model, path):
+    def __init__(self, model, path, modelFolder):
 
         # This is the argument that will be modify by fit_generator
         # self.model = model
         self.path = path
-
+        self.folder = modelFolder
         # We set the model (non multi gpu) under an other name
         self.model_for_saving = model
 
@@ -61,6 +61,7 @@ class CustomModelCheckpoint(Callback):
             # self.model_for_saving.save_weights(self.path.format(epoch=epoch, val_loss=loss), overwrite=True)
             # tf.saved_model.save(self.path.format(epoch=epoch, val_loss=loss))
             self.model_for_saving.save(self.path.format(epoch=epoch, val_loss=loss))
+            self.model_for_saving.save(self.folder +"/BestModel")
         else:
             print ("-------------------------------------------------------\n")
             print("-- not IMPROVED --\n")
@@ -71,9 +72,7 @@ def loadModel(directory):
    from tensorflow import keras
 
    model = keras.models.load_model(directory,
-                             custom_objects={'fbeta_score': fbeta_score, 'rmse': rmse,
-                                             'recall': recall, 'precision': precision,
-                                             'ccc': ccc})
+                             custom_objects={'ccc': ccc})
 
 
    model.summary()
@@ -90,46 +89,78 @@ def buildModel(inputShape, numberOfOutputs):
     inputLayer = Input(shape=inputShape, name="Vision_Network_Input")
 
     # Conv1 and 2
-    conv1 = Conv2D(int(nch / 4), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation="relu",
+    conv1 = Conv2D(int(nch / 4), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation=None,
                    name="Vision_conv1")(inputLayer)
 
-    conv2 = Conv2D(int(nch / 4), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation="relu",
+    # conv1 = BatchNormalization()(conv1)
+
+    conv1 = Activation("relu")(conv1)
+
+    conv2 = Conv2D(int(nch / 4), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation=None,
                    name="Vision_conv2")(conv1)
+    # conv2 = BatchNormalization()(conv2)
+
+    conv2 = Activation("relu")(conv2)
+
 
     mp1 = MaxPooling2D(pool_size=(2, 2))(conv2)
     drop1 = Dropout(0.25)(mp1)
 
     # Conv 3 and 4
-    conv3 = Conv2D(int(nch / 2), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation="relu",
+    conv3 = Conv2D(int(nch / 2), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation=None,
                    name="Vision_conv3")(drop1)
+    # conv3 = BatchNormalization()(conv3)
 
-    conv4 = Conv2D(int(nch / 2), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation="relu",
+    conv3 = Activation("relu")(conv3)
+
+    conv4 = Conv2D(int(nch / 2), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation=None,
                    name="Vision_conv4")(conv3)
+    # conv4 = BatchNormalization()(conv4)
+
+    conv4 = Activation("relu")(conv4)
 
     mp2 = MaxPooling2D(pool_size=(2, 2))(conv4)
     drop2 = Dropout(0.25)(mp2)
 
     # Conv 5 and 6 and 7
-    conv5 = Conv2D(int(nch / 2), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation="relu",
+    conv5 = Conv2D(int(nch / 2), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation=None,
                    name="Vision_conv5")(drop2)
+    # conv5 = BatchNormalization()(conv5)
+    conv5 = Activation("relu")(conv5)
 
-    conv6 = Conv2D(int(nch / 2), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation="relu",
+    conv6 = Conv2D(int(nch / 2), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation=None,
                    name="Vision_conv6")(conv5)
+    conv6 = BatchNormalization()(conv6)
 
-    conv7 = Conv2D(int(nch / 2), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation="relu",
+    conv6 = Activation("relu")(conv6)
+
+    conv7 = Conv2D(int(nch / 2), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation=None,
                    name="Vision_conv7")(conv6)
+    # conv7 = BatchNormalization()(conv7)
+
+    conv7 = Activation("relu")(conv7)
 
     mp3 = MaxPooling2D(pool_size=(2, 2))(conv7)
     drop3 = Dropout(0.25)(mp3)
     # Conv 8 and 9 and 10
-    conv8 = Conv2D(nch, (3, 3), padding="same", kernel_initializer="glorot_uniform", activation="relu",
+    conv8 = Conv2D(nch, (3, 3), padding="same", kernel_initializer="glorot_uniform", activation=None,
                    name="Vision_conv8")(drop3)
+    # conv8 = BatchNormalization()(conv8)
 
-    conv9 = Conv2D(nch, (3, 3), padding="same", kernel_initializer="glorot_uniform", activation="relu",
+    conv8 = Activation("relu")(conv8)
+
+    conv9 = Conv2D(nch, (3, 3), padding="same", kernel_initializer="glorot_uniform", activation=None,
                    name="conv9")(conv8)
 
-    conv10 = Conv2D(nch, (3, 3), padding="same", kernel_initializer="glorot_uniform", activation="relu",
+    # conv9 = BatchNormalization()(conv9)
+
+    conv9 = Activation("relu")(conv9)
+
+    conv10 = Conv2D(nch, (3, 3), padding="same", kernel_initializer="glorot_uniform", activation=None,
                     name="conv10")(conv9)
+    # conv10 = BatchNormalization()(conv10)
+
+    conv10 = Activation("relu")(conv10)
 
     # conv10_inhibition = Conv2D(nch, (3, 3), padding="same", kernel_initializer="glorot_uniform", activation="relu",
     #                 name="conv10_Inhibition")(conv9)
@@ -141,7 +172,7 @@ def buildModel(inputShape, numberOfOutputs):
 
     flatten = Flatten()(drop4)
 
-    dense = Dense(200, activation="relu", name="denseLayer")(flatten)
+    dense = Dense(600, activation="relu", name="denseLayer")(flatten)
     drop5 = Dropout(0.5)(dense)
 
     arousal_output = Dense(units=1, activation='linear', name='arousal_output')(drop5)
@@ -152,9 +183,9 @@ def buildModel(inputShape, numberOfOutputs):
 
 def evaluate(model, validationSamples, imgSize):
 
-    batchSize = 32
+    batchSize = 64
 
-    optimizer = SGD(learning_rate=0.01, momentum=0.0, nesterov=False)
+    optimizer = Adam()
 
     model.compile(loss={'arousal_output':'mean_squared_error', 'valence_output':'mean_squared_error'},
                   optimizer=optimizer,
@@ -168,7 +199,7 @@ def evaluate(model, validationSamples, imgSize):
     print("Scores = ", scores)
 
 
-def train (model, trainSamples, testSamples, validationSamples, imgSize, experimentFolder):
+def train (model, trainSamples, testSamples, validationSamples, imgSize, experimentFolder, logFolder):
 
 
     # for layer in model.layers:
@@ -180,9 +211,11 @@ def train (model, trainSamples, testSamples, validationSamples, imgSize, experim
     model.summary()
 
     batchSize = 64
-    epoches = 40
+    epoches = 20
 
-    optimizer = SGD(learning_rate=0.01, momentum=0.0, nesterov=False)
+    optimizer = SGD(learning_rate=0.1, momentum=0.1, nesterov=False)
+    # optimizer = Adam()
+
 
     trainGenerator = ArousalValenceGenerator(trainSamples[0], trainSamples[1], batchSize, imgSize, grayScale=False)
 
@@ -196,13 +229,15 @@ def train (model, trainSamples, testSamples, validationSamples, imgSize, experim
 
     checkpointsString = experimentFolder + '/weights.{epoch:02d}-{val_loss:.2f}'
 
-    checkPoint = CustomModelCheckpoint(model, checkpointsString)
+    checkPoint = CustomModelCheckpoint(model, checkpointsString, experimentFolder)
+
+    tensorboard_callback = keras.callbacks.TensorBoard(log_dir=logFolder)
 
     # checkPoint = ModelCheckpoint(filepath, monitor='val_categorical_accuracy',
     #                             verbose=1, save_best_only=True, save_weights_only=False, mode='auto', period=1)
     #
 
-    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=5, min_lr=0.0001, verbose=1)
+    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, mode="min", patience=5, cooldown=3, min_lr=0.0001, verbose=1)
 
     # print "Steps per epoch:", len(dataPointsTrain.dataX) // self.batchSize
 
@@ -215,8 +250,9 @@ def train (model, trainSamples, testSamples, validationSamples, imgSize, experim
                                                 use_multiprocessing=True,
                                                 workers=30,
                                                 max_queue_size=3591,
-                                                callbacks=[checkPoint, reduce_lr],
+                                                callbacks=[checkPoint,reduce_lr,tensorboard_callback],
 
                                                 )
 
+    model = load_model(experimentFolder+"/BestModel")
     model.save(experimentFolder + '/FinalModel')

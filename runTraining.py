@@ -8,10 +8,8 @@ import random
 
 import os
 
-# import tensorflow as tf
-# config = tf.ConfigProto()
-# config.gpu_options.allow_growth=True
-# sess = tf.Session(config=config)
+from dataVisualization import createHistogram
+
 
 
 from imgaug import augmenters as iaa
@@ -77,12 +75,51 @@ def preProcess(dataLocation, imageSize, grayScale):
     return data
 
 
+def bagIt(value, bags):
+
+    addIt = False
+    indexAddToBag = 0
+
+    if value < -1 and value > -0.8:
+        indexAddToBag = 0
+    elif value < -0.8 and value > -0.6:
+        indexAddToBag = 1
+    elif value < -0.6 and value > -0.4:
+        indexAddToBag = 2
+    elif value < - 0.4 and value > -0.2:
+        indexAddToBag = 3
+    elif value < - 0.2 and value < 0.0:
+        indexAddToBag = 4
+
+    if value < 1 and value > 0.8:
+        indexAddToBag = 5
+    elif value < 0.8 and value > 0.6:
+        indexAddToBag = 6
+    elif value < 0.6 and value > 0.4:
+        indexAddToBag = 7
+    elif value < 0.4 and value > 0.2:
+        indexAddToBag = 8
+    elif value < 0.2 and value > 0.0:
+        indexAddToBag = 9
+
+    if len(bags[indexAddToBag]) > 100000:
+        addIt = False
+    else:
+        bags[indexAddToBag].append(value)
+        addIt = True
+
+    return addIt, bags
 #LOCAL
+# import tensorflow as tf
+# config = tf.ConfigProto()
+# config.gpu_options.allow_growth=True
+# sess = tf.Session(config=config)
 # videoDirectory = "/home/pablo/Documents/Datasets/affwild2/cropped_aligned"
 #
 # trainingLabelDirectory = "/home/pablo/Documents/Datasets/affwild2/annotations-20200917T112933Z-001/annotations/VA_Set/Training_Set"
 # validationLabelDirectory = "/home/pablo/Documents/Datasets/affwild2/annotations-20200917T112933Z-001/annotations/VA_Set/Validation_Set"
-# saveExperiment = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2"
+# saveExperiment = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/savedModel"
+# logFolder = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/log"
 #
 #
 # savedModel = "/home/pablo/Documents/Workspace/FaceChannel/TrainedNetworks/DimensionalFaceChannel.h5"
@@ -93,8 +130,8 @@ videoDirectory = "/home/pablovin/dataset/affwild2/cropped_aligned"
 
 trainingLabelDirectory = "/home/pablovin/dataset/affwild2/annotations/VA_Set/Training_Set"
 validationLabelDirectory = "/home/pablovin/dataset/affwild2/annotations/VA_Set/Validation_Set"
-saveExperiment = "/home/pablovin/experiments/facechannel"
-
+saveExperiment = "/home/pablovin/experiments/facechannel/savedModels"
+logFolder = "/home/pablovin/experiments/facechannel/log"
 
 savedModel = "/home/pablovin/experiments/facechannel/weights.01-0.02.h5"
 
@@ -111,6 +148,8 @@ testingLabels = []
 validationSamples = []
 validationLabels = []
 
+arousals = []
+valences = []
 print ("---- Reading validation")
 for file in os.listdir(validationLabelDirectory):
     print ("Reading file:" + str(file))
@@ -119,18 +158,29 @@ for file in os.listdir(validationLabelDirectory):
     for line in labelFile:
         if rowNumber > 0:
             valence,arousal = line.split(",")
-            if not valence == -5:
+            if  float(valence) >= -1 and float(valence) <= 1:
                 fileNumber = str(rowNumber)
                 while not len(str(fileNumber)) == 5:
                     fileNumber = "0"+fileNumber
 
                 fileName = videoDirectory + "/" + file.split(".")[0] + "/" + str(fileNumber) + ".jpg"
-                validationSamples.append(fileName)
-                validationLabels.append([float(arousal),float(valence)])
+                if os.path.exists(fileName):
+                    validationSamples.append(fileName)
+                    validationLabels.append([float(arousal),float(valence)])
+                    arousals.append(float(arousal))
+                    valences.append(float(valence))
+
         rowNumber +=1
 
+# print ("Len arousals:" + str(len(arousals)))
+# createHistogram(arousals, valences, "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/dataVis", "validation")
 
 print ("---- Reading training")
+arousals = []
+valences = []
+
+
+
 for file in os.listdir(trainingLabelDirectory):
     print ("Reading file:" + str(file))
     labelFile = open(trainingLabelDirectory+"/"+file)
@@ -138,34 +188,78 @@ for file in os.listdir(trainingLabelDirectory):
     for line in labelFile:
         if rowNumber > 0:
             valence,arousal = line.split(",")
-            if not valence == -5:
+            if float(valence) >= -1 and float(valence) <= 1:
                 fileNumber = str(rowNumber)
                 while not len(str(fileNumber)) == 5:
                     fileNumber = "0"+fileNumber
 
                 fileName = videoDirectory + "/" + file.split(".")[0] + "/" + str(fileNumber) + ".jpg"
-                trainingSamples.append(fileName)
-                trainingLabels.append([float(arousal),float(valence)])
+                if os.path.exists(fileName):
+                    trainingSamples.append(fileName)
+                    trainingLabels.append([float(arousal),float(valence)])
+                    arousals.append(float(arousal))
+                    valences.append(float(valence))
+
         rowNumber +=1
 
 trainingSamples,trainingLabels = shuffleData(trainingSamples, trainingLabels)
+validationSamples,validationLabels = shuffleData(validationSamples, validationLabels)
 
-trainingSamples = trainingSamples
-trainingLabels = trainingLabels
+
+
+bags = []
+for a in range(10):
+    bags.append([])
+
+normalizedTrainingSamples, normalizedTrainingLabels = [],[]
+
+for a in range(len(trainingLabels)):
+
+    arousal,valence = trainingLabels[a]
+    add, bags = bagIt(arousal, bags)
+    if add:
+        normalizedTrainingSamples.append(trainingSamples[a])
+        normalizedTrainingLabels.append([arousal, valence])
+
+for a in range(10):
+    print ("Bags:" + str(len(bags[a])))
+
+
+normalizedTrainingSamples = numpy.array(normalizedTrainingSamples)
+normalizedTrainingLabels = numpy.array(normalizedTrainingLabels)
+
+# print ("Shape samples:" + str(normalizedTrainingSamples.shape))
+#
+# print ("Shape labels:" + str(normalizedTrainingLabels.shape))
+
+trainingSamples = normalizedTrainingSamples[0:10000]
+trainingLabels = normalizedTrainingLabels[0:10000]
 
 validationSamples = validationSamples[0:1000]
 validationLabels = validationLabels[0:1000]
 
+trainingLabels = numpy.array(trainingLabels)
+validationLabels = numpy.array(validationLabels)
+
+# createHistogram(arousals, valences, "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/dataVis", "training_all")
+
+# createHistogram(normalizedTrainingLabels[:,0], normalizedTrainingLabels[:, 1], "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/dataVis", "training_normalized")
+# createHistogram(trainingLabels[:,0], trainingLabels[:, 1], "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/dataVis", "training_10k")
+# createHistogram(validationLabels[:,0], validationLabels[:, 1], "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/dataVis", "validation_10k")
+# print ("Len arousals:" + str(len(arousals)))
+# input("here")
 print ("Training:" + str(len(trainingLabels)))
 print ("Testing:" + str(len(testingSamples)))
 print ("Validation:" + str(len(validationLabels)))
 
-# model = Model.buildModel(inputShape, 8)
+model = Model.buildModel(inputShape, 8)
 
-model = Model.loadModel(savedModel)
+# model = Model.loadModel(savedModel)
 
 # Model.evaluate(model,  [validationSamples, validationLabels], imageSize)
+#
+Model.train(model, [trainingSamples, trainingLabels], [testingSamples,testingLabels], [validationSamples, validationLabels], imageSize, saveExperiment, logFolder)
 
-Model.train(model, [trainingSamples, trainingLabels], [testingSamples,testingLabels], [validationSamples, validationLabels], imageSize, saveExperiment)
-
+print ("Evaluating...")
+# model = Model.load_model(saveExperiment+"/BestModel")
 Model.evaluate(model,  [validationSamples, validationLabels], imageSize)

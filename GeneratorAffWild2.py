@@ -23,17 +23,12 @@ def warn(*args, **kwargs):
 def preProcess(dataLocation, imageSize, grayScale):
 
 
-    try:
-        data = cv2.imread(dataLocation)
-        data = numpy.array(cv2.resize(data, imageSize))
-    except:
-        data = cv2.imread("/home/pablovin/dataset/affwild2/cropped_aligned/video83/00360.jpg")
-        data = numpy.array(cv2.resize(data, imageSize))
-
+    data = cv2.imread(dataLocation)
+    data = numpy.array(cv2.resize(data, imageSize))
 
     if grayScale:
        data = cv2.cvtColor(data, cv2.COLOR_BGR2GRAY)
-       data = numpy.expand_dims(data, axis=0)
+       data = numpy.expand_dims(data, axis=2)
 
     # else:
     #     data = numpy.swapaxes(data, 1, 2)
