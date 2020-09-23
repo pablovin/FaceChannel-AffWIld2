@@ -172,7 +172,7 @@ def buildModel(inputShape, numberOfOutputs):
 
     flatten = Flatten()(drop4)
 
-    dense = Dense(600, activation="relu", name="denseLayer")(flatten)
+    dense = Dense(200, activation="relu", name="denseLayer")(flatten)
     drop5 = Dropout(0.5)(dense)
 
     arousal_output = Dense(units=1, activation='linear', name='arousal_output')(drop5)
