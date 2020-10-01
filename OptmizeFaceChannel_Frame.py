@@ -38,8 +38,6 @@ generalFolder = "/home/pablovin/experiments/facechannel/optmization"
 
 
 
-
-
 timeNow = str(datetime.now())
 experimentFolder = experimentFolder + "/" + timeNow
 
