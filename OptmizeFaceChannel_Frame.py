@@ -117,7 +117,11 @@ Best:{'BatchSize': 5, 'ShuntingInhibition': 0, 'SmallNetwork': 0, 'a': 0, 'decay
 """
 def objective(args):
 
-    experimentFolder = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Optmization/"
+    #Local
+    # experimentFolder = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Optmization/"
+
+    #GCloud
+    experimentFolder = "/home/pablovin/experiments/facechannel/optmization"
 
     timeNow = str(datetime.now())
     experimentFolder = experimentFolder + "/" + timeNow
