@@ -21,20 +21,20 @@ import time
 
 #Data location
 #Local
-videoDirectory = "/home/pablo/Documents/Datasets/affwild2/cropped_aligned"
-trainingLabelDirectory = "/home/pablo/Documents/Datasets/affwild2/balancedAnnotationsTraining/"
-validationLabelDirectory = "/home/pablo/Documents/Datasets/affwild2/annotations-20200917T112933Z-001/annotations/VA_Set/Validation_Set"
-experimentFolder = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Optmization/"
-
-generalFolder = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Optmization/"
+# videoDirectory = "/home/pablo/Documents/Datasets/affwild2/cropped_aligned"
+# trainingLabelDirectory = "/home/pablo/Documents/Datasets/affwild2/balancedAnnotationsTraining/"
+# validationLabelDirectory = "/home/pablo/Documents/Datasets/affwild2/annotations-20200917T112933Z-001/annotations/VA_Set/Validation_Set"
+# experimentFolder = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Optmization/"
+#
+# generalFolder = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Optmization/"
 
 #Gcloud
-videoDirectory = "/home/pablo/Documents/Datasets/affwild2/cropped_aligned"
-trainingLabelDirectory = "/home/pablo/Documents/Datasets/affwild2/balancedAnnotationsTraining/"
-validationLabelDirectory = "/home/pablo/Documents/Datasets/affwild2/annotations-20200917T112933Z-001/annotations/VA_Set/Validation_Set"
-experimentFolder = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Optmization/"
+videoDirectory = "/home/pablovin/dataset/affwild2/cropped_aligned"
+trainingLabelDirectory = "/home/pablovin/dataset/affwild2/balancedAnnotationsTraining"
+validationLabelDirectory = "/home/pablovin/dataset/affwild2/annotations/VA_Set/Validation_Set"
+experimentFolder = "/home/pablovin/experiments/facechannel/optmization"
 
-generalFolder = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Optmization/"
+generalFolder = "/home/pablovin/experiments/facechannel/optmization"
 
 
 
