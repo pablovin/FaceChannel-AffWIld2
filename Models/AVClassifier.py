@@ -78,8 +78,8 @@ def createFolders(folder):
 def train(model, experimentFolder, trainGenerator, validationGenerator, batchSize = 64, epoches=10, params=[], verbose=1):
 
     if len(params) > 0:
-        denseLayer, initialLR, decay, momentum, nesterov, batchSize = 500, 0.015476808651646383, True, 0.7408493385691893, True, 1024
-        smallNetwork, inhibition = params
+        # denseLayer, initialLR, decay, momentum, nesterov, batchSize = 500, 0.015476808651646383, True, 0.7408493385691893, True, 1024
+        denseLayer, initialLR, decay, momentum, nesterov, batchSize, smallNetwork, inhibition = params
 
     print("----------------")
     print("Training this model:")
@@ -326,8 +326,8 @@ def arousalFrameFaceChannelModel(inputShape):
 
 def arousalFrameFaceChannelModel_Optmizer(inputShape, params):
 
-    denseLayer, initialLR, decay, momentum, nesterov, batchSize = 500, 0.015476808651646383, True, 0.7408493385691893, True, 1024
-    smallNetwork, inhibition = params
+    # denseLayer, initialLR, decay, momentum, nesterov, batchSize = 500, 0.015476808651646383, True, 0.7408493385691893, True, 1024
+    denseLayer, initialLR, decay, momentum, nesterov, batchSize, smallNetwork, inhibition = params
 
     """Model """
     nch = 64
