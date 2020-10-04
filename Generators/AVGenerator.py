@@ -246,10 +246,20 @@ class AVExpGeneratorFaceChannel(Sequence):
         batch_y = self.labels[idx * self.batch_size:(idx + 1) * self.batch_size]
 
         if self.augmentation == None:
-            batch = numpy.array([
-                self.preprocess(file_name, self.grayScale, self.imageSize)
-                for file_name in batch_x])
+            batch = []
 
+            for file_name in batch_x:
+                img = self.preprocess(file_name, self.grayScale, self.imageSize)
+                if not img.shape == (10, 112, 112, 3):
+                    print("Array:" + str(batch))
+                    print("Shape:" + str(batch.shape))
+                    input("Here")
+                batch.append(img)
+            batch = numpy.array(batch)
+
+            # batch = numpy.array([
+            #     self.preprocess(file_name, self.grayScale, self.imageSize)
+            #     for file_name in batch_x])
 
         else:
             # print ("Augmenting!!!")
@@ -260,11 +270,7 @@ class AVExpGeneratorFaceChannel(Sequence):
         # print("Shape:" + batch_y.shape)
         # input("here")
 
-        if not batch.shape == (128,10,112,112, 3):
-            print("Array:" + str(batch))
-            print ("Shape:" + str(batch.shape))
 
-            input ("Here")
         # batchY = [numpy.array(batch_y[:, 0]), numpy.array(batch_y[:, 1]), numpy.array(batch_y[:, 2])]
         # batch_y = [numpy.zeros([len(1024), 1]), numpy.zeros([len(1024), 1]), numpy.zeros([len(1024), 7])]
         # print ("Batch Arousal:" + str(numpy.array(batch_y[:, 0])))

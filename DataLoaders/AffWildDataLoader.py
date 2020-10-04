@@ -702,40 +702,47 @@ def getTestSetVideosSequence(videoDirectory, testSetDirectory, sequenceSize):
     rowNumber = 0
     nonExistingFrames = 0
     for line in testSetFile:
+
         videoName = line.split("\n")[0]
         videoFolder = videoDirectory+"/"+videoName
         samplesThisVideo = []
 
-        frames = os.listdir(videoFolder)
-        # print ("Frames:" + str(len(frames)))
-        # samplesThisVideo.extend(frames)
-        # print("Video:" + str(videoFolder)+ " - Frames:" + str(len(frames)))
-        # print ("Video directory:" + str(videoFolder))
+        # videosCompleted = ["14-30-1920x1080","16-30-1920x1080", "40-30-1280x720", "43-30-406x720",
+        #                    "79-30-960x720","92-24-1920x1080","126-30-1080x1920"
+        #                    ]
+        videoCompleted = []
+        # print ("Video name:" + str(videoName))
+        if not videoName in videoCompleted:
+            frames = os.listdir(videoFolder)
+            # print ("Frames:" + str(len(frames)))
+            # samplesThisVideo.extend(frames)
+            # print("Video:" + str(videoFolder)+ " - Frames:" + str(len(frames)))
+            # print ("Video directory:" + str(videoFolder))
 
-        for f in range(len(frames)):
-            if f + 10 > len(frames):
-                missingSamples = (f+10) - len(frames)
-                sequence_f = frames[f:f+10]
-                for s in range(missingSamples):
-                    sequence_f.append(sequence_f[-1])
-            else:
-                sequence_f = frames[f:f+10]
-            sequence = []
-            for a in sequence_f:
-                sequence.append(videoFolder+"/"+a)
-            samplesThisVideo.append(sequence)
+            for f in range(len(frames)):
+                if f + 10 > len(frames):
+                    missingSamples = (f+10) - len(frames)
+                    sequence_f = frames[f:f+10]
+                    for s in range(missingSamples):
+                        sequence_f.append(sequence_f[-1])
+                else:
+                    sequence_f = frames[f:f+10]
+                sequence = []
+                for a in sequence_f:
+                    sequence.append(videoFolder+"/"+a)
+                samplesThisVideo.append(sequence)
 
 
-            # # print("Frame directory:" + str(videoFolder + "/" + f))
-            # if os.path.exists(videoFolder+"/"+f) and "jpg" in f:
-            #     samplesThisVideo.append(videoFolder+"/"+f)
-            # else:
-            #     nonExistingFrames += 1
-        videoSamples.append(samplesThisVideo)
-        labels.append(videoName)
-        # print ("Inputs:" + str(len(samplesThisVideo)))
-        #
-        # input("here")
+                # # print("Frame directory:" + str(videoFolder + "/" + f))
+                # if os.path.exists(videoFolder+"/"+f) and "jpg" in f:
+                #     samplesThisVideo.append(videoFolder+"/"+f)
+                # else:
+                #     nonExistingFrames += 1
+            videoSamples.append(samplesThisVideo)
+            labels.append(videoName)
+            # print ("Inputs:" + str(len(samplesThisVideo)))
+            #
+            # input("here")
         rowNumber +=1
     testSetFile.close()
     # print ("Non existing frames:" + str(nonExistingFrames))

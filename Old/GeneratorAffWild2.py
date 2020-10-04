@@ -15,6 +15,7 @@ from keras import backend as K
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
+from keras.applications.vgg16 import preprocess_input
 
 def warn(*args, **kwargs):
     pass
@@ -34,7 +35,7 @@ def preProcess(dataLocation, imageSize, grayScale):
     #     data = numpy.swapaxes(data, 1, 2)
     #     data = numpy.swapaxes(data, 0, 1)
 
-    data = data.astype('float32')
+    data = data.astype('float16')
 
     data /= 255
 
@@ -63,9 +64,22 @@ class ArousalValenceGenerator(Sequence):
         batch_x = self.image_filenames[idx * self.batch_size:(idx + 1) * self.batch_size]
         batch_y = self.labels[idx * self.batch_size:(idx + 1) * self.batch_size]
 
+        # batch = np.array([
+        #     preProcess(file_name, self.imageSize, self.grayScale)
+        #     for file_name in batch_x]), [np.array(batch_y[:, 0]), np.array(batch_y[:, 1])]
+
         batch = np.array([
             preProcess(file_name, self.imageSize, self.grayScale)
-            for file_name in batch_x]), [np.array(batch_y[:, 0]), np.array(batch_y[:, 1])]
+            for file_name in batch_x]), np.array(batch_y[:, 0])
 
+        #
+        # batch = np.array([
+        #     preprocess_input(cv2.imread(file_name))
+        #     for file_name in batch_x]), [np.array(batch_y[:, 0]), np.array(batch_y[:, 1])]
+
+        #
+        # batch = np.array([
+        #     preprocess_input(cv2.imread(file_name))
+        #     for file_name in batch_x]), [np.array(batch_y[:, 0])]
 
         return batch

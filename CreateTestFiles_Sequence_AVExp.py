@@ -73,7 +73,7 @@ for index, video in enumerate(testSamples):
     saveFileAV.close()
     saveFileExp.close()
 
-    print ("Video:" + str(index) + "- Predictions:" + str(len(predictions[0])))
+    print ("Video:" + str(index) + " - "+str(testLabels[index]) + " - Predictions:" + str(len(predictions[0])))
 
     # numpy.savetxt(saveFile+"/"+testLabels[index]+".txt", header="Neutral,Anger,Disgust,Fear,Happiness,Sadness,Surprise")
     # print ("Video: "+str(index)+" - Predictions shape:" + str(predictions.shape))
