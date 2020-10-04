@@ -4,16 +4,16 @@ Repository that holds the FaceChannel implementations for the AffWild2 dataset.
 
 You can find the original FaceChannel [here](https://github.com/pablovin/FaceChannel).
 
-#Requirements
+# Requirements
 
 Install the Requirements.txt file.
 
-#Model and results
+# Model and results
 
 Can be found in our descriptive paper: 
 
 
-#Contact and information
+# Contact and information
 
 Please contact me:
 
