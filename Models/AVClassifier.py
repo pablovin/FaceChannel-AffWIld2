@@ -9,6 +9,8 @@ from keras.models import Model
 
 import tensorflow as tf
 
+from Models.CPC import loadModel as CPCLoad
+
 from Models.Layer_ShuntingInhibition import ShuntingInhibition
 
 import os
@@ -17,7 +19,15 @@ from datetime import datetime
 MODELTYPE = {'Arousal_Frame_FaceChannel': 'Arousal_Frame_FaceChannel',
              'Arousal_Frame_ResNet50v2': 'Arousal_Frame_ResNet50v2',
 
+             'Arousal_Frame_CPC': 'Arousal_Frame_CPC',
+
+
              'Arousal_Frame_FaceChannel_Optmizer': 'Arousal_Frame_FaceChannel_Optmizer',
+             'Arousal_Sequence_FaceChannel_Optmizer': 'Arousal_Sequence_FaceChannel_Optmizer',
+             "Arousal_Frame_CPC_Optmizer":"Arousal_Frame_CPC_Optmizer",
+
+             'AVExp_Frame_FaceChannel': 'AVExp_Frame_FaceChannel',
+             'AVExp_Sequence_FaceChannel': 'AVExp_Sequence_FaceChannel',
 
               'Arousal_Sequence_FaceChannel': 'Arousal_Sequence_FaceChannel',
              }
@@ -33,17 +43,41 @@ def getModel(inputShape, modelType, params=[]):
         return arousalFrameFaceChannelModel(inputShape)
     elif modelType == MODELTYPE["Arousal_Frame_ResNet50v2"]:
         return arousalFrameResNet50(inputShape)
+
+    elif modelType == MODELTYPE["AVExp_Frame_FaceChannel"]:
+        return avEXPFrameFaceChannelModel(inputShape)
+
+
     elif modelType == MODELTYPE["Arousal_Sequence_FaceChannel"]:
         return arousalSequenceFaceChannelModel(inputShape)
+
+    elif modelType == MODELTYPE["AVExp_Sequence_FaceChannel"]:
+        return avEXPSequenceFaceChannelModel(inputShape)
+
+
+    elif modelType == MODELTYPE["Arousal_Frame_CPC"]:
+        return arousalFrameCPC(inputShape)
+
+    elif modelType == MODELTYPE["Arousal_Frame_CPC_Optmizer"]:
+        return arousalFrameCPC_Optmizer(params)
 
     elif modelType == MODELTYPE["Arousal_Frame_FaceChannel_Optmizer"]:
         return arousalFrameFaceChannelModel_Optmizer(inputShape, params)
 
+    elif modelType == MODELTYPE["Arousal_Sequence_FaceChannel_Optmizer"]:
+        return arousalSequenceFaceChannelModel_Optmizer(inputShape, params)
 
 
 """
 Utils
 """
+
+def predict(model, testGenerator):
+
+    predictions = model.predict(testGenerator)
+
+    return predictions
+
 
 def evaluate(model, validationGenerator, batchSize):
 
@@ -80,6 +114,7 @@ def train(model, experimentFolder, trainGenerator, validationGenerator, batchSiz
     if len(params) > 0:
         # denseLayer, initialLR, decay, momentum, nesterov, batchSize = 500, 0.015476808651646383, True, 0.7408493385691893, True, 1024
         denseLayer, initialLR, decay, momentum, nesterov, batchSize, smallNetwork, inhibition = params
+        # lstmSize, denseSize, batchSize = params
 
     print("----------------")
     print("Training this model:")
@@ -96,6 +131,7 @@ def train(model, experimentFolder, trainGenerator, validationGenerator, batchSiz
     createFolders(modelFolder)
     createFolders(historyFolder)
     createFolders(tensorBoard)
+
 
     """Callbacks """
     callbacks = [
@@ -123,98 +159,48 @@ def train(model, experimentFolder, trainGenerator, validationGenerator, batchSiz
 Models
 """
 
-
-def arousalSequenceFaceChannelModel(inputShape):
+def arousalSequenceFaceChannelModel_Optmizer(inputShape, params):
     # keras.backend.set_image_data_format("channels_first")
 
-    nch = 64
+    lstmSize, denseSize, batchSize = params
 
-    # inputShape = numpy.array((1, 64, 64)).astype(numpy.int32)
-    # inputLayer = Input(shape=inputShape, name="Vision_Network_Input")
+    modelLoaded = keras.models.load_model("/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Optmization/Round2_60kImages/2020-10-01 05:05:18.686795/Model",
+                                    custom_objects={'ccc': ccc})
 
-    model = Sequential()
+    modelDense =  modelLoaded.get_layer(name="denseLayer")
+
+    previousModel = Model(inputs=modelLoaded.input, outputs=modelDense.output)
+
+    input_layer = Input(shape=inputShape)
+
+    # model = Sequential()
 
     # Conv1 and 2
-    model.add(
-        TimeDistributed(
-            Conv2D(int(nch / 4), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation="relu",
-                   ), input_shape=(inputShape), name="Vision_conv1"
-        )
-    )
 
-    model.add(
-        TimeDistributed(
-            Conv2D(int(nch / 4), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation="relu",
-                   ), name="Vision_conv2"
-        )
-    )
-
-    model.add(
-        TimeDistributed(
-            MaxPooling2D(pool_size=(2, 2)), name="pool1"
-        )
-    )
-
-    model.add(
-        TimeDistributed(Dropout(0.5), name="drop1"
-                        )
-    )
-
-    # Conv 3 and 4
-    model.add(
-        TimeDistributed(
-            Conv2D(int(nch / 2), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation="relu",
-                   ), name="Vision_conv3"
-        )
-    )
-
-    model.add(
-        TimeDistributed(
-            Conv2D(int(nch / 2), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation="relu",
-                   ), name="Vision_conv4"
-        )
-    )
-
-    model.add(
-        TimeDistributed(
-            MaxPooling2D(pool_size=(2, 2)), name="pool2"
-        )
-    )
-
-    model.add(
-        TimeDistributed(Dropout(0.5), name="drop2"
-                        )
-    )
-
+    td1 = TimeDistributed(previousModel, name="FaceChannel")(input_layer)
 
     # Flatten
-
-    model.add(
-        TimeDistributed(Flatten(), name="Flatten"
-                        )
-    )
+    flatten = TimeDistributed(Flatten(), name="Flatten") (td1)
 
     # RNN
 
-    model.add(
-        LSTM(10, activation='relu', return_sequences=False, name="Rnn_1")
+    lstm = LSTM(lstmSize, activation='relu', return_sequences=False, name="Rnn_1") (flatten)
 
-    )
+    dense = Dense(denseSize, activation='relu', name="dense_1") (lstm)
 
-    model.add(
-        Dense(10, activation='relu', name="dense_1")
+    drop1 = Dropout(0.5, name="drop5")(dense)
 
-    )
-    model.add(
-        Dropout(0.5, name="drop5")
+    arousal_output = Dense(units=1, activation='tanh', name='arousal_output')(drop1)
 
-    )
+    model = Model(inputs=input_layer, outputs=arousal_output)
 
-    model.build()
+    for layer in model.layers:
+        layer.trainable = False
 
-    arousal_output = Dense(units=1, activation='tanh', name='arousal_output')(model.output)
+    model.get_layer(name="Rnn_1").trainable = True
+    model.get_layer(name="dense_1").trainable = True
+    model.get_layer(name="arousal_output").trainable = True
 
-    model = Model(inputs=model.input, outputs=arousal_output)
 
     optimizer = Adam()
 
@@ -224,6 +210,54 @@ def arousalSequenceFaceChannelModel(inputShape):
 
     return model
 
+
+def arousalSequenceFaceChannelModel(inputShape):
+    modelLoaded = keras.models.load_model(
+        "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Optmization/Round2_60kImages/2020-10-01 05:05:18.686795/Model",
+        custom_objects={'ccc': ccc})
+
+    modelDense = modelLoaded.get_layer(name="denseLayer")
+
+    previousModel = Model(inputs=modelLoaded.input, outputs=modelDense.output)
+
+    input_layer = Input(shape=inputShape)
+
+    # model = Sequential()
+
+    # Conv1 and 2
+
+    td1 = TimeDistributed(previousModel, name="FaceChannel")(input_layer)
+
+    # Flatten
+    flatten = TimeDistributed(Flatten(), name="Flatten")(td1)
+
+    # RNN
+
+    lstm = LSTM(100, activation='relu', return_sequences=False, name="Rnn_1")(flatten)
+
+    dense = Dense(100, activation='relu', name="dense_1")(lstm)
+
+    drop1 = Dropout(0.5, name="drop5")(dense)
+
+    arousal_output = Dense(units=1, activation='tanh', name='arousal_output')(drop1)
+
+    model = Model(inputs=input_layer, outputs=arousal_output)
+
+    # for layer in model.layers:
+    #     layer.trainable = False
+    #
+    # model.get_layer(name="Rnn_1").trainable = True
+    # model.get_layer(name="dense_1").trainable = True
+    # model.get_layer(name="arousal_output").trainable = True
+
+    optimizer = SGD(learning_rate= 0.015, decay=0.1 / 10, momentum=0.74, nesterov=True)
+    # optimizer = SGD(lr=0.1, momentum=0.9, decay=0.1 / 10)
+
+    model.compile(loss={'arousal_output': 'mean_squared_error'},
+                  optimizer=optimizer,
+                  metrics=[ccc])
+
+    return model
 
 def arousalFrameResNet50(inputShape):
 
@@ -254,8 +288,122 @@ def arousalFrameResNet50(inputShape):
 
 
 
+    return model
+
+
+def arousalFrameCPC(inputShape):
+
+
+    # new_input = Input(shape=inputShape)
+
+    crop_shape = (16, 16, 3)
+    n_crops = 7
+    code_size = 128
+
+    encoder = CPCLoad(
+        "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/CPC/200kI_Images_2020-10-01 21:06:14.473694/Model/Encoder")
+
+    # encoder.summary()
+    # input("here")
+    # encoder.trainable = False
+    # for l in encoder.layers:
+    #     l.trainable = False
+
+    # Crops feature extraction
+    x_input = keras.layers.Input((n_crops, n_crops) + crop_shape)
+    x = keras.layers.Reshape((n_crops * n_crops, ) + crop_shape)(x_input)
+    x = keras.layers.TimeDistributed(encoder)(x)
+    x = keras.layers.Reshape((n_crops, n_crops, code_size))(x)
+
+    # previousModel = Model(inputs=modelLoaded.input, outputs=modelDense.output)
+
+    # x = Flatten(x)
+
+    x = keras.layers.GlobalAveragePooling2D()(x)
+
+    dense = Dense(500, activation="relu", name="denseLayer")(x)
+    drop5 = Dropout(0.5)(dense)
+
+    arousal_output = Dense(units=1, activation='tanh', name='arousal_output')(drop5)
+
+    model = Model(inputs=x_input, outputs=arousal_output)
+
+    # for layer in model.layers:
+    #     layer.trainable = False
+    #
+    # model.get_layer(name="denseLayer").trainable = True
+    # model.get_layer(name="arousal_output").trainable = True
+
+    optimizer = Adam()
+    # optimizer = SGD(learning_rate=0.015, decay=0.1 / 10, momentum=0.74, nesterov=True)
+    # optimizer = SGD(lr=0.1, momentum=0.9, decay=0.1 / 10)
+
+    model.compile(loss={'arousal_output': 'mean_squared_error'},
+                  optimizer=optimizer,
+                  metrics=[ccc])
+
 
     return model
+
+
+
+def arousalFrameCPC_Optmizer(params):
+
+
+    denseSize, optmizer, initialLearningRate, momentum = params
+    # new_input = Input(shape=inputShape)
+
+    crop_shape = (16, 16, 3)
+    n_crops = 7
+    code_size = 128
+
+    encoder = CPCLoad(
+        "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/CPC/200kI_Images_2020-10-01 21:06:14.473694/Model/Encoder")
+
+    # encoder.summary()
+    # input("here")
+    # encoder.trainable = False
+    # for l in encoder.layers:
+    #     l.trainable = False
+
+    # Crops feature extraction
+    x_input = keras.layers.Input((n_crops, n_crops) + crop_shape)
+    x = keras.layers.Reshape((n_crops * n_crops, ) + crop_shape)(x_input)
+    x = keras.layers.TimeDistributed(encoder)(x)
+    x = keras.layers.Reshape((n_crops, n_crops, code_size))(x)
+
+    # previousModel = Model(inputs=modelLoaded.input, outputs=modelDense.output)
+
+    # x = Flatten(x)
+
+    x = keras.layers.GlobalAveragePooling2D()(x)
+
+    dense = Dense(denseSize, activation="relu", name="denseLayer")(x)
+    drop5 = Dropout(0.5)(dense)
+
+    arousal_output = Dense(units=1, activation='tanh', name='arousal_output')(drop5)
+
+    model = Model(inputs=x_input, outputs=arousal_output)
+
+    # for layer in model.layers:
+    #     layer.trainable = False
+    #
+    # model.get_layer(name="denseLayer").trainable = True
+    # model.get_layer(name="arousal_output").trainable = True
+
+    if optmizer == "Adam":
+        optimizer = Adam()
+    else:
+        optimizer = SGD(learning_rate=initialLearningRate, decay=0.1 / 10, momentum=momentum, nesterov=True)
+    # optimizer = SGD(lr=0.1, momentum=0.9, decay=0.1 / 10)
+
+    model.compile(loss={'arousal_output': 'mean_squared_error'},
+                  optimizer=optimizer,
+                  metrics=[ccc])
+
+
+    return model
+
 
 def arousalFrameFaceChannelModel(inputShape):
 
@@ -298,9 +446,51 @@ def arousalFrameFaceChannelModel(inputShape):
     mp2 = MaxPooling2D(pool_size=(2, 2))(conv4)
     drop2 = Dropout(0.5)(mp2)
 
+    # Conv 5 and 6 and 7
+    conv5 = Conv2D(int(nch / 2), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation=None,
+                   name="Vision_conv5")(drop2)
+    # conv5 = BatchNormalization()(conv5)
+    conv5 = Activation("relu")(conv5)
+
+    conv6 = Conv2D(int(nch / 2), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation=None,
+                   name="Vision_conv6")(conv5)
+    # conv6 = BatchNormalization()(conv6)
+
+    conv6 = Activation("relu")(conv6)
+
+    conv7 = Conv2D(int(nch / 2), (3, 3), padding="same", kernel_initializer="glorot_uniform", activation=None,
+                   name="Vision_conv7")(conv6)
+    # conv7 = BatchNormalization()(conv7)
+
+    conv7 = Activation("relu")(conv7)
+
+    mp3 = MaxPooling2D(pool_size=(2, 2))(conv7)
+    drop3 = Dropout(0.5)(mp3)
+    # Conv 8 and 9 and 10
+    conv8 = Conv2D(nch, (3, 3), padding="same", kernel_initializer="glorot_uniform", activation=None,
+                   name="Vision_conv8")(drop3)
+    # conv8 = BatchNormalization()(conv8)
+
+    conv8 = Activation("relu")(conv8)
+
+    conv9 = Conv2D(nch, (3, 3), padding="same", kernel_initializer="glorot_uniform", activation=None,
+                   name="conv9")(conv8)
+
+    # conv9 = BatchNormalization()(conv9)
+
+    conv9 = Activation("relu")(conv9)
+
+    conv10 = Conv2D(nch, (3, 3), padding="same", kernel_initializer="glorot_uniform", activation=None,
+                    name="conv10")(conv9)
+
+    conv10 = Activation("relu")(conv10)
+
+    mp4 = MaxPooling2D(pool_size=(2, 2))(conv10)
+    drop4 = Dropout(0.5)(mp4)
+
 
     #
-    flatten = Flatten()(drop2)
+    flatten = Flatten()(drop4)
 
     dense = Dense(500, activation="relu", name="denseLayer")(flatten)
     drop5 = Dropout(0.5)(dense)
@@ -312,12 +502,149 @@ def arousalFrameFaceChannelModel(inputShape):
 
     """Training Parameters"""
 
-    optimizer = SGD(learning_rate= 0.015, decay=0.1 / 10, momentum=0.74, nesterov=False)
+    optimizer = SGD(learning_rate= 0.015, decay=0.1 / 10, momentum=0.74, nesterov=True)
     # optimizer = SGD(lr=0.1, momentum=0.9, decay=0.1 / 10)
 
     model.compile(loss={'arousal_output': 'mean_squared_error'},
                   optimizer=optimizer,
                   metrics=[ccc])
+
+
+    return model
+
+
+
+def avEXPSequenceFaceChannelModel(inputShape):
+
+
+    modelLoaded = keras.models.load_model(
+        "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/Models/AV_Exp/50k_BestAcc_2020-10-03 20:45:28.043769/Model",
+        custom_objects={'ccc': ccc})
+
+    modelDense = modelLoaded.get_layer(name="denseLayer")
+
+    previousModel = Model(inputs=modelLoaded.input, outputs=modelDense.output)
+
+    # encoder.summary()
+    # input("here")
+    # previousModel.trainable = False
+    # for l in previousModel.layers:
+    #     l.trainable = False
+
+    input_layer = Input(shape=inputShape)
+
+    td1 = TimeDistributed(previousModel, name="FaceChannel")(input_layer)
+
+    # Flatten
+    flatten = TimeDistributed(Flatten(), name="Flatten")(td1)
+
+    # RNN
+
+    lstmA = LSTM(100, activation='relu', return_sequences=False, name="Rnn_A")(flatten)
+    denseA = Dense(100, activation='relu', name="dense_1")(lstmA)
+    drop4 = Dropout(0.5)(denseA)
+    arousal_output = Dense(units=1, activation='tanh', name='arousal_output')(drop4)
+
+
+    lstmV = LSTM(100, activation='relu', return_sequences=False, name="Rnn_V")(flatten)
+    denseV = Dense(100, activation="relu", name="denseLayer_V")(lstmV)
+    drop7 = Dropout(0.5)(denseV)
+    valence_output = Dense(units=1, activation='tanh', name='valence_output')(drop7)
+
+    lstmE = LSTM(100, activation='relu', return_sequences=False, name="Rnn_E")(flatten)
+    denseE = Dense(100, activation="relu", name="denseLayer_E")(lstmE)
+    drop8 = Dropout(0.5)(denseE)
+    exp_output = Dense(units=7, activation='softmax', name='exp_output1')(drop8)
+
+    model = Model(inputs=input_layer, outputs=[arousal_output, valence_output, exp_output])
+
+
+    """Training Parameters"""
+
+    # optimizer = SGD(learning_rate= 0.015, decay=0.1 / 10, momentum=0.74, nesterov=True)
+    optimizer = Adam()
+    # optimizer = SGD(lr=0.1, momentum=0.9, decay=0.1 / 10)
+
+    model.compile(loss={'arousal_output': 'mean_squared_error',
+                        'valence_output': 'mean_squared_error',
+                        'exp_output1': tf.keras.losses.CategoricalCrossentropy()
+
+                        },
+                  optimizer=optimizer,
+                  metrics = {'arousal_output': ccc,
+                        'valence_output': ccc,
+                        'exp_output1': "accuracy"
+
+                        })
+
+    # model.compile(loss={'arousal_output': 'mean_squared_error',
+    #                     'exp_output': tf.keras.losses.CategoricalCrossentropy()},
+    #               optimizer=optimizer)
+
+
+    return model
+
+
+
+def avEXPFrameFaceChannelModel(inputShape):
+
+
+    modelLoaded = keras.models.load_model(
+        "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/Models/Arousal_Frame/2020-10-02 18:20:18.755732/Model",
+        custom_objects={'ccc': ccc})
+
+    modelDense = modelLoaded.get_layer(name="denseLayer")
+
+    previousModel = Model(inputs=modelLoaded.input, outputs=modelDense.output)
+
+    # encoder.summary()
+    # input("here")
+    # previousModel.trainable = False
+    # for l in previousModel.layers:
+    #     l.trainable = False
+
+    #
+    flatten = Flatten()(previousModel.output)
+
+    denseA = Dense(100, activation="relu", name="denseLayer_A")(flatten)
+    drop6 = Dropout(0.5)(denseA)
+
+    arousal_output = Dense(units=1, activation='tanh', name='arousal_output')(drop6)
+
+    denseV = Dense(100, activation="relu", name="denseLayer_V")(flatten)
+    drop7 = Dropout(0.5)(denseV)
+
+    valence_output = Dense(units=1, activation='tanh', name='valence_output')(drop7)
+
+    denseE = Dense(100, activation="relu", name="denseLayer_E")(flatten)
+    drop8 = Dropout(0.5)(denseE)
+    exp_output = Dense(units=7, activation='softmax', name='exp_output1')(drop8)
+
+    model = Model(inputs=previousModel.input, outputs=[arousal_output, valence_output, exp_output])
+
+    # model.summary()
+    # input("here")
+    """Training Parameters"""
+
+    # optimizer = SGD(learning_rate= 0.015, decay=0.1 / 10, momentum=0.74, nesterov=True)
+    optimizer = Adam()
+    # optimizer = SGD(lr=0.1, momentum=0.9, decay=0.1 / 10)
+
+    model.compile(loss={'arousal_output': 'mean_squared_error',
+                        'valence_output': 'mean_squared_error',
+                        'exp_output1': tf.keras.losses.CategoricalCrossentropy()
+
+                        },
+                  optimizer=optimizer,
+                  metrics = {'arousal_output': ccc,
+                        'valence_output': ccc,
+                        'exp_output1': "accuracy"
+
+                        })
+
+    # model.compile(loss={'arousal_output': 'mean_squared_error',
+    #                     'exp_output': tf.keras.losses.CategoricalCrossentropy()},
+    #               optimizer=optimizer)
 
 
     return model

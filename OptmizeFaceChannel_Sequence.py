@@ -21,7 +21,7 @@ import time
 videoDirectory = "/home/pablo/Documents/Datasets/affwild2/cropped_aligned"
 trainingLabelDirectory = "/home/pablo/Documents/Datasets/affwild2/balancedAnnotationsTraining/"
 validationLabelDirectory = "/home/pablo/Documents/Datasets/affwild2/annotations-20200917T112933Z-001/annotations/VA_Set/Validation_Set"
-experimentFolder = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Optmization/"
+experimentFolder = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/"
 
 generalFolder = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Optmization/"
 
@@ -41,29 +41,30 @@ experimentFolder = experimentFolder + "/" + timeNow
 dataSetFolder = generalFolder + "/OptmizationDataset"
 
 #Type of data, model and generator
-dataType = AffWildDataLoader.DATATYPE["Valence_Frame"]
-modelType =AVClassifier.MODELTYPE["Arousal_Frame_FaceChannel_Optmizer"]
+dataType = AffWildDataLoader.DATATYPE["Arousal_Sequence"]
+modelType =AVClassifier.MODELTYPE["Arousal_Sequence_FaceChannel_Optmizer"]
 generatorType =AVGenerator.GENERATORTYPE["Arousal_FaceChannel"]
 
 #Training Parameters
 epoches = 5
 batchSize = 64
-maxSamplesTraining = 50000
+maxSamplesTraining = 25000
 maxSamplesValidation = 1000
 trainingBins = 21
+sequenceSize = 10
 
 shuffle = True
 
 #Image parameters
-inputShape = (112,112,3) # Image H, W, RGB
+inputShape = (sequenceSize, 112,112,3) # Image H, W, RGB
 
 
 """
 Load data
 """
-trainingSamples, trainingLabels = AffWildDataLoader.getData(videoDirectory,trainingLabelDirectory, dataType, shuffle=shuffle, maxSamples=maxSamplesTraining, splitName="Training", loadingBins=trainingBins, histogramDirectory=experimentFolder)
+trainingSamples, trainingLabels = AffWildDataLoader.getData(videoDirectory,trainingLabelDirectory, dataType, shuffle=shuffle, maxSamples=maxSamplesTraining, splitName="Training", loadingBins=trainingBins, histogramDirectory=experimentFolder, sequenceSize=sequenceSize)
 
-validationSamples, validationLabels = AffWildDataLoader.getData(videoDirectory,validationLabelDirectory, dataType, shuffle=shuffle, maxSamples=maxSamplesValidation, splitName="Validation", histogramDirectory=experimentFolder)
+validationSamples, validationLabels = AffWildDataLoader.getData(videoDirectory,validationLabelDirectory, dataType, shuffle=shuffle, maxSamples=maxSamplesValidation, splitName="Validation", histogramDirectory=experimentFolder, sequenceSize=sequenceSize)
 
 # fullValidationSamples, fullValidationLabels = AffWildDataLoader.getData(videoDirectory,validationLabelDirectory, dataType, shuffle=shuffle, splitName="Full_Validation")
 
@@ -72,9 +73,8 @@ validationSamples, validationLabels = AffWildDataLoader.getData(videoDirectory,v
 Create Generator
 """
 
-trainGenerator = AVGenerator.getGenerator(generatorType, trainingSamples, trainingLabels, batchSize, inputShape, dataAugmentation=True)
-validationGenerator = AVGenerator.getGenerator(generatorType, validationSamples, validationLabels, batchSize, inputShape)
-
+trainGenerator = AVGenerator.getGenerator(generatorType, trainingSamples, trainingLabels, batchSize, inputShape, dataAugmentation=False, sequence=True)
+validationGenerator = AVGenerator.getGenerator(generatorType, validationSamples, validationLabels, batchSize, inputShape, sequence=True)
 
 #Search space for the model
 
@@ -82,14 +82,9 @@ numMaxEvals = 40
 
 space = hp.choice('a',
                   [
-                      (hp.choice("denseLayer", [10, 100, 500, 1000]),
-                       hp.uniform("initialLR", 0.0001, 0.5 ),
-                       hp.choice("decay", [False, True]),
-                       hp.uniform("momentum", 0.1, 0.9),
-                       hp.choice("nesterov", [False, True]),
+                      (hp.choice("lstmSize", [10, 100, 500, 1000]),
+                       hp.choice("denseSize", [10, 100, 500, 1000]),
                        hp.choice("BatchSize", [16, 64, 128, 256, 512, 1024]),
-                       hp.choice("SmallNetwork", [False,True]),
-                       hp.choice("ShuntingInhibition", [False,True]),
                       )
                   ])
 

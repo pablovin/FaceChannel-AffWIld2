@@ -8,19 +8,18 @@ Experiment Information
 """
 
 #Data location
-# videoDirectory = "/home/pablo/Documents/Datasets/affwild2/cropped_aligned"
-# trainingLabelDirectory = "/home/pablo/Documents/Datasets/affwild2/balancedAnnotationsTraining/"
-# validationLabelDirectory = "/home/pablo/Documents/Datasets/affwild2/annotations-20200917T112933Z-001/annotations/VA_Set/Validation_Set"
-# experimentFolder = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/"
+videoDirectory = "/home/pablo/Documents/Datasets/affwild2/cropped_aligned"
+trainingLabelDirectory = "/home/pablo/Documents/Datasets/affwild2/balancedAnnotationsTraining/"
+validationLabelDirectory = "/home/pablo/Documents/Datasets/affwild2/annotations-20200917T112933Z-001/annotations/VA_Set/Validation_Set"
+experimentFolder = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/Arousal_Sequence"
 
 
-#Gcloud
-videoDirectory = "/home/pablovin/dataset/affwild2/cropped_aligned"
-trainingLabelDirectory = "/home/pablovin/dataset/affwild2/balancedAnnotationsTraining"
-validationLabelDirectory = "/home/pablovin/dataset/affwild2/annotations/VA_Set/Validation_Set"
-experimentFolder = "/home/pablovin/experiments/facechannel/sequence"
-
-
+# #Gcloud
+# videoDirectory = "/home/pablovin/dataset/affwild2/cropped_aligned"
+# trainingLabelDirectory = "/home/pablovin/dataset/affwild2/balancedAnnotationsTraining"
+# validationLabelDirectory = "/home/pablovin/dataset/affwild2/annotations/VA_Set/Validation_Set"
+# experimentFolder = "/home/pablovin/experiments/facechannel/sequence"
+#
 
 
 timeNow = str(datetime.now())
@@ -32,11 +31,11 @@ modelType =AVClassifier.MODELTYPE["Arousal_Sequence_FaceChannel"]
 generatorType =AVGenerator.GENERATORTYPE["Arousal_FaceChannel"]
 
 #Training Parameters
-epoches = 15
-batchSize = 64
+epoches = 10
+batchSize = 128
 maxSamplesTraining = 30000
 maxSamplesValidation = 1000
-trainingBins = -1
+trainingBins = 21
 sequenceSize = 10
 
 shuffle = True
@@ -70,7 +69,7 @@ Create Model
 
 model = AVClassifier.getModel(inputShape, modelType)
 
-# model = AVClassifier.loadModel("/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/SmallNetwork_OnlyArousal/Model")
+# model = AVClassifier.loadModel("/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/Arousal_Frame/2020-10-02 18:20:18.755732/Model")
 
 """
 Train Model
