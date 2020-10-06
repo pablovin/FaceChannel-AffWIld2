@@ -7,25 +7,22 @@ import numpy
 import os
 
 videosFolder = "/home/pablo/Documents/Datasets/affwild2/cropped_aligned"
-testSetDirectory = "/home/pablo/Documents/Datasets/affwild2/expression_test_set.txt"
+testSetDirectory = "/home/pablo/Documents/Datasets/affwild2/VA_Challenge_video_and_total_number_of_frames.txt"
 
-model = "/home/pablo/Documents/Datasets/affwild2/expression_test_set.txt"
+saveFileDirectory = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/ResultsCorrected/VA Challenge-Track/FC_Frame"
+saveDirectoryExp = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/ResultFiles/FC_Experience_Frame"
 
-saveFileDirectory = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/ResultFiles/FC_AV_Sequence"
-saveDirectoryExp = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/ResultFiles/FC_Expression_Sequence"
-
-model = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/Models/AV_Exp_Sequence/Sequence_Best_2020-10-03 22:03:17.618090/Model"
+model = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/Models/AV_Exp_Frame/50k_BestAcc_2020-10-03 20:45:28.043769/Model"
 
 #Type of data, model and generator
-dataType = AffWildDataLoader.DATATYPE["Expression_Test_Sequence"]
-generatorType =AVGenerator.GENERATORTYPE["AVExp_FaceChannel"]
+dataType = AffWildDataLoader.DATATYPE["Expression_Test"]
+generatorType =AVGenerator.GENERATORTYPE["Arousal_FaceChannel"]
 
 #Training Parameters
-batchSize = 128
-sequenceSize = 10
+batchSize = 1024
 
 #Image parameters
-inputShape = (sequenceSize, 112,112,3) # Image H, W, RGB
+inputShape = (112,112,3) # Image H, W, RGB
 
 
 """
@@ -37,7 +34,7 @@ model = AVClassifier.loadModel(model)
 """
 Load data
 """
-testSamples, testLabels = AffWildDataLoader.getData(videosFolder,testSetDirectory, dataType, sequenceSize)
+testSamples, testLabels = AffWildDataLoader.getData(videosFolder,testSetDirectory, dataType)
 
 for index, video in enumerate(testSamples):
 
@@ -45,15 +42,15 @@ for index, video in enumerate(testSamples):
 
 
     # input("here")
-    videoGenerator = AVGenerator.getGenerator(generatorType, video, [numpy.zeros([len(video),1]),numpy.zeros([len(video),1]), numpy.zeros([len(video),7])],
-                                                        batchSize, inputShape, sequence=True)
+    videoGenerator = AVGenerator.getGenerator(generatorType, video, numpy.zeros([len(video),1]),
+                                                        batchSize, inputShape)
 
     predictions = AVClassifier.predict(model, videoGenerator)
 
     saveFileAV = open(saveFileDirectory+"/"+testLabels[index]+".txt","a")
-    saveFileExp = open(saveDirectoryExp + "/" + testLabels[index] + ".txt", "a")
+    # saveFileExp = open(saveDirectoryExp + "/" + testLabels[index] + ".txt", "a")
     saveFileAV.write("valence, arousal\n")
-    saveFileExp.write("Neutral,Anger,Disgust,Fear,Happiness,Sadness,Surprise\n")
+    # saveFileExp.write("Neutral,Anger,Disgust,Fear,Happiness,Sadness,Surprise\n")
 
     # print ("SHape pred:" + str(predictions[1].shape))
     # print ("SHape pred:" + str(predictions[0].shape))
@@ -69,11 +66,11 @@ for index, video in enumerate(testSamples):
         # print("Cat:" + str(c))
         # input("here")
         saveFileAV.write(str(valence)+","+str(arousal)+"\n")
-        saveFileExp.write(str(c) + "\n")
+        # saveFileExp.write(str(c) + "\n")
     saveFileAV.close()
-    saveFileExp.close()
+    # saveFileExp.close()
 
-    print ("Video:" + str(index) + " - "+str(testLabels[index]) + " - Predictions:" + str(len(predictions[0])))
+    print("Video:" + str(index) + " - " + str(testLabels[index]) + " - Predictions:" + str(len(predictions[0])))
 
     # numpy.savetxt(saveFile+"/"+testLabels[index]+".txt", header="Neutral,Anger,Disgust,Fear,Happiness,Sadness,Surprise")
     # print ("Video: "+str(index)+" - Predictions shape:" + str(predictions.shape))

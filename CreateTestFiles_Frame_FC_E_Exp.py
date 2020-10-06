@@ -1,23 +1,21 @@
 import os
 from DataLoaders import AffWildDataLoader
-from Generators import AVGenerator
-from Models import AVClassifier
+from Generators import EXPGenerator
+from Models import EXPClassifier
 from tqdm import tqdm
 import numpy
 import os
 
 videosFolder = "/home/pablo/Documents/Datasets/affwild2/cropped_aligned"
-testSetDirectory = "/home/pablo/Documents/Datasets/affwild2/expression_test_set.txt"
+testSetDirectory = "/home/pablo/Documents/Datasets/affwild2/Expr_Challenge_video_and_total_number_of_frames.txt"
 
-model = "/home/pablo/Documents/Datasets/affwild2/expression_test_set.txt"
+saveFileDirectory = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/ResultsCorrected/Expr Challenge-Track/FC_E"
 
-saveFileDirectory = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/ResultFiles/Arousal_Frame"
-
-model = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/Models/Arousal_Frame/2020-10-02 18:20:18.755732/Model"
+model = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/Models/Expression_Frame/Best/Model"
 
 #Type of data, model and generator
 dataType = AffWildDataLoader.DATATYPE["Expression_Test"]
-generatorType =AVGenerator.GENERATORTYPE["Arousal_FaceChannel"]
+generatorType =EXPGenerator.GENERATORTYPE["EXP_FaceChannel"]
 
 #Training Parameters
 batchSize = 1024
@@ -30,7 +28,7 @@ inputShape = (112,112,3) # Image H, W, RGB
 Load Model
 """
 
-model = AVClassifier.loadModel(model)
+model = EXPClassifier.loadModel(model)
 
 """
 Load data
@@ -43,21 +41,20 @@ for index, video in enumerate(testSamples):
 
 
     # input("here")
-    videoGenerator = AVGenerator.getGenerator(generatorType, video, numpy.zeros([len(video),1]),
+    videoGenerator = EXPGenerator.getGenerator(generatorType, video, numpy.zeros([len(video),1]),
                                                         batchSize, inputShape)
 
-    predictions = AVClassifier.predict(model, videoGenerator)
+    predictions = EXPClassifier.predict(model, videoGenerator)
 
     saveFile = open(saveFileDirectory+"/"+testLabels[index]+".txt","a")
-    saveFile.write("valence, arousal\n")
+    saveFile.write("Neutral,Anger,Disgust,Fear,Happiness,Sadness,Surprise\n")
     for a in predictions:
-        # print ("Shape:" + str(a.shape))
-        arousal,valence = a[0], 0
+        c = numpy.argmax(a)
         # print ("prediction:" + str(c))
-        saveFile.write(str(valence)+","+str(arousal)+"\n")
+        saveFile.write(str(c)+"\n")
     saveFile.close()
 
-    print ("Video:" + str(index) + "- Predictions:" + str(len(predictions)))
+    print("Video:" + str(index) + " - " + str(testLabels[index]) + " - Predictions:" + str(len(predictions)))
 
     # numpy.savetxt(saveFile+"/"+testLabels[index]+".txt", header="Neutral,Anger,Disgust,Fear,Happiness,Sadness,Surprise")
     # print ("Video: "+str(index)+" - Predictions shape:" + str(predictions.shape))

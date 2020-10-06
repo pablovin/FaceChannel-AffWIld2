@@ -7,13 +7,11 @@ import numpy
 import os
 
 videosFolder = "/home/pablo/Documents/Datasets/affwild2/cropped_aligned"
-testSetDirectory = "/home/pablo/Documents/Datasets/affwild2/expression_test_set.txt"
+testSetDirectory = "/home/pablo/Documents/Datasets/affwild2/VA_Challenge_video_and_total_number_of_frames.txt"
 
-model = "/home/pablo/Documents/Datasets/affwild2/expression_test_set.txt"
+saveFileDirectory = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/ResultsCorrected/VA Challenge-Track/FC_A"
 
-saveFileDirectory = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/ResultFiles/Valence_Frame"
-
-model = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/Models/Valence_Frame/2020-10-02 18:54:58.160943/Model"
+model = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/Models/Arousal_Frame/2020-10-02 18:20:18.755732/Model"
 
 #Type of data, model and generator
 dataType = AffWildDataLoader.DATATYPE["Expression_Test"]
@@ -52,12 +50,12 @@ for index, video in enumerate(testSamples):
     saveFile.write("valence, arousal\n")
     for a in predictions:
         # print ("Shape:" + str(a.shape))
-        arousal,valence = 0, a[0]
+        arousal,valence = a[0], 0
         # print ("prediction:" + str(c))
         saveFile.write(str(valence)+","+str(arousal)+"\n")
     saveFile.close()
 
-    print ("Video:" + str(index) + "- Predictions:" + str(len(predictions)))
+    print("Video:" + str(index) + " - " + str(testLabels[index]) + " - Predictions:" + str(len(predictions)))
 
     # numpy.savetxt(saveFile+"/"+testLabels[index]+".txt", header="Neutral,Anger,Disgust,Fear,Happiness,Sadness,Surprise")
     # print ("Video: "+str(index)+" - Predictions shape:" + str(predictions.shape))

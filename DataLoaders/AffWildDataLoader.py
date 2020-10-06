@@ -658,7 +658,6 @@ def getExpressionData_Sequence(videoDirectory, labelDirectory, shuffle, sequence
 
 
 def getTestSetVideos(videoDirectory, testSetDirectory):
-
     videoSamples = []
     labels = []
 
@@ -666,27 +665,65 @@ def getTestSetVideos(videoDirectory, testSetDirectory):
 
     rowNumber = 0
     nonExistingFrames = 0
+
     for line in testSetFile:
-        videoName = line.split("\n")[0]
-        videoFolder = videoDirectory+"/"+videoName
+        videoName = line.split(",")[0].split(":")[1][1:-1]
+        framesNumber = int(line.split(",")[1].split(":")[1][1:-1])
+        # print ("Video name:" + str(videoName))
+        # input("here")
+
+        videoFolder = videoDirectory + "/" + videoName
         samplesThisVideo = []
 
+        newFrames = []
         frames = os.listdir(videoFolder)
+
+        for f in frames:
+            if "jpg" in f:
+                newFrames.append(f)
+        frames = newFrames
+
+        frames = sorted(frames, key=lambda x: int(x.split(".")[0]))
         # samplesThisVideo.extend(frames)
         # print("Video:" + str(videoFolder)+ " - Frames:" + str(len(frames)))
         # print ("Video directory:" + str(videoFolder))
+        # print ("Frames:" + str(len(frames)))
+        lastFrameNumber = 0
+        lastFrame = "/home/pablo/Documents/Datasets/affwild2/cropped_aligned/36-24-1280x720/05134.jpg"
+
         for f in frames:
-            # print("Frame directory:" + str(videoFolder + "/" + f))
-            if os.path.exists(videoFolder+"/"+f) and "jpg" in f:
-                samplesThisVideo.append(videoFolder+"/"+f)
+            thisFrame = int(f.split(".")[0])
+
+            if not thisFrame == lastFrameNumber + 1:
+
+                currentFrame = videoFolder + "/" + f
+                difference = thisFrame - lastFrameNumber
+
+                for u in range(difference):
+                    samplesThisVideo.append(currentFrame)
+
             else:
-                nonExistingFrames += 1
+                currentFrame = videoFolder + "/" + f
+                samplesThisVideo.append(currentFrame)
+                lastFrame = currentFrame
+
+            lastFrameNumber = int(f.split(".")[0])
+
+        if framesNumber > len(samplesThisVideo):
+            difference = framesNumber - len(samplesThisVideo)
+            for u in range(difference):
+                samplesThisVideo.append(lastFrame)
+
         videoSamples.append(samplesThisVideo)
         labels.append(videoName)
+        # print ("File:" + str(videoFolder))
+        # print("Frames collected:" + str(len(samplesThisVideo)))
+        # print("Total frames:" + str(framesNumber))
+        # input("here")
 
-
-        rowNumber +=1
+        rowNumber += 1
     testSetFile.close()
+
     # print ("Non existing frames:" + str(nonExistingFrames))
     # input("here")
     return numpy.array(videoSamples), numpy.array(labels)
@@ -703,34 +740,65 @@ def getTestSetVideosSequence(videoDirectory, testSetDirectory, sequenceSize):
     nonExistingFrames = 0
     for line in testSetFile:
 
-        videoName = line.split("\n")[0]
+        videoName = line.split(",")[0].split(":")[1][1:-1]
+        framesNumber = int(line.split(",")[1].split(":")[1][1:-1])
+
         videoFolder = videoDirectory+"/"+videoName
         samplesThisVideo = []
 
-        # videosCompleted = ["14-30-1920x1080","16-30-1920x1080", "40-30-1280x720", "43-30-406x720",
+        # videoCompleted = ["14-30-1920x1080","16-30-1920x1080", "40-30-1280x720", "43-30-406x720",
         #                    "79-30-960x720","92-24-1920x1080","126-30-1080x1920"
         #                    ]
         videoCompleted = []
         # print ("Video name:" + str(videoName))
         if not videoName in videoCompleted:
+
+
+            newFrames = []
             frames = os.listdir(videoFolder)
-            # print ("Frames:" + str(len(frames)))
-            # samplesThisVideo.extend(frames)
-            # print("Video:" + str(videoFolder)+ " - Frames:" + str(len(frames)))
-            # print ("Video directory:" + str(videoFolder))
+            for f in frames:
+                if "jpg" in f:
+                    newFrames.append(f)
+            frames = newFrames
+
+            frames = sorted(frames, key=lambda x: int(x.split(".")[0]))
+
+            lastFrameNumber = 0
+            jokerFrame = "/home/pablo/Documents/Datasets/affwild2/cropped_aligned/36-24-1280x720/05134.jpg"
 
             for f in range(len(frames)):
-                if f + 10 > len(frames):
-                    missingSamples = (f+10) - len(frames)
-                    sequence_f = frames[f:f+10]
-                    for s in range(missingSamples):
-                        sequence_f.append(sequence_f[-1])
+
+                thisFrame = int(frames[f].split(".")[0])
+
+                if not thisFrame == lastFrameNumber + 1:
+
+                    difference = thisFrame - lastFrameNumber
+
+                    for u in range(difference):
+                        sequence = []
+                        for a in range(10):
+                            sequence.append(jokerFrame)
+                        samplesThisVideo.append(sequence)
+
                 else:
-                    sequence_f = frames[f:f+10]
-                sequence = []
-                for a in sequence_f:
-                    sequence.append(videoFolder+"/"+a)
-                samplesThisVideo.append(sequence)
+
+                    if f + 10 > len(frames):
+                        missingSamples = (f + 10) - len(frames)
+                        sequence_f = frames[f:f + 10]
+                        for s in range(missingSamples):
+                            sequence_f.append(sequence_f[-1])
+                    else:
+                        sequence_f = frames[f:f + 10]
+                    sequence = []
+                    for a in sequence_f:
+                         sequence.append(videoFolder + "/" + a)
+                    samplesThisVideo.append(sequence)
+                    jokerFrame = videoFolder + "/" + a
+
+                lastFrameNumber = int(frames[f].split(".")[0])
+
+
+
 
 
                 # # print("Frame directory:" + str(videoFolder + "/" + f))
@@ -738,8 +806,20 @@ def getTestSetVideosSequence(videoDirectory, testSetDirectory, sequenceSize):
                 #     samplesThisVideo.append(videoFolder+"/"+f)
                 # else:
                 #     nonExistingFrames += 1
+            if framesNumber > len(samplesThisVideo):
+                difference = framesNumber - len(samplesThisVideo)
+                for u in range(difference):
+                    sequence = []
+                    for a in range(10):
+                        sequence.append(jokerFrame)
+                    samplesThisVideo.append(sequence)
+
             videoSamples.append(samplesThisVideo)
             labels.append(videoName)
+            # print ("File:" + str(videoFolder))
+            # print("Frames collected:" + str(len(samplesThisVideo)))
+            # print("Total frames:" + str(framesNumber))
+            # input("here")
             # print ("Inputs:" + str(len(samplesThisVideo)))
             #
             # input("here")

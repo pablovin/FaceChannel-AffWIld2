@@ -7,12 +7,9 @@ import numpy
 import os
 
 videosFolder = "/home/pablo/Documents/Datasets/affwild2/cropped_aligned"
-testSetDirectory = "/home/pablo/Documents/Datasets/affwild2/expression_test_set.txt"
+testSetDirectory = "/home/pablo/Documents/Datasets/affwild2/Expr_Challenge_video_and_total_number_of_frames.txt"
 
-model = "/home/pablo/Documents/Datasets/affwild2/expression_test_set.txt"
-
-saveFileDirectory = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/ResultFiles/FC_AV_Frame"
-saveDirectoryExp = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/ResultFiles/FC_Experience_Frame"
+saveFileDirectory = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/ResultsCorrected/Expr Challenge-Track/FC"
 
 model = "/home/pablo/Documents/Datasets/FaceChannel_Outputs/AffWild2/Experiments/AffWIld2_Final/Models/AV_Exp_Frame/50k_BestAcc_2020-10-03 20:45:28.043769/Model"
 
@@ -50,9 +47,9 @@ for index, video in enumerate(testSamples):
     predictions = AVClassifier.predict(model, videoGenerator)
 
     saveFileAV = open(saveFileDirectory+"/"+testLabels[index]+".txt","a")
-    saveFileExp = open(saveDirectoryExp + "/" + testLabels[index] + ".txt", "a")
-    saveFileAV.write("valence, arousal\n")
-    saveFileExp.write("Neutral,Anger,Disgust,Fear,Happiness,Sadness,Surprise\n")
+    # saveFileExp = open(saveDirectoryExp + "/" + testLabels[index] + ".txt", "a")
+    saveFileAV.write("Neutral,Anger,Disgust,Fear,Happiness,Sadness,Surprise\n")
+    # saveFileExp.write("Neutral,Anger,Disgust,Fear,Happiness,Sadness,Surprise\n")
 
     # print ("SHape pred:" + str(predictions[1].shape))
     # print ("SHape pred:" + str(predictions[0].shape))
@@ -67,12 +64,12 @@ for index, video in enumerate(testSamples):
         # print("Valence:" + str(valence))
         # print("Cat:" + str(c))
         # input("here")
-        saveFileAV.write(str(valence)+","+str(arousal)+"\n")
-        saveFileExp.write(str(c) + "\n")
+        saveFileAV.write(str(c)+"\n")
+        # saveFileExp.write(str(c) + "\n")
     saveFileAV.close()
-    saveFileExp.close()
+    # saveFileExp.close()
 
-    print ("Video:" + str(index) + "- Predictions:" + str(len(predictions[0])))
+    print("Video:" + str(index) + " - " + str(testLabels[index]) + " - Predictions:" + str(len(predictions[0])))
 
     # numpy.savetxt(saveFile+"/"+testLabels[index]+".txt", header="Neutral,Anger,Disgust,Fear,Happiness,Sadness,Surprise")
     # print ("Video: "+str(index)+" - Predictions shape:" + str(predictions.shape))

@@ -47,6 +47,7 @@ def getGenerator(generatorType, samples, labels, batchSize, inputShape, dataAugm
 """Utils"""
 def preProcess(dataLocation, grayScale, imageSize):
 
+    # print ("Location:" + str(dataLocation))
     data = cv2.imread(dataLocation)
 
     data = numpy.array(cv2.resize(data, imageSize))
@@ -67,6 +68,7 @@ def preProcessSequences(dataLocations, grayScale,  imageSize):
     images = []
     for dataLocation in dataLocations:
         # print ("DataLocation:" + str(dataLocation))
+
         data = cv2.imread(dataLocation)
         # input ("here")
         if grayScale:
@@ -249,13 +251,18 @@ class AVExpGeneratorFaceChannel(Sequence):
             batch = []
 
             for file_name in batch_x:
-                img = self.preprocess(file_name, self.grayScale, self.imageSize)
-                if not img.shape == (10, 112, 112, 3):
-                    print("Array:" + str(batch))
-                    print("Shape:" + str(batch.shape))
-                    input("Here")
+                img = numpy.array(self.preprocess(file_name, self.grayScale, self.imageSize))
+                # if not img.shape == (10, 112, 112, 3):
+                #     for a in range(len(img)):
+                #         print("Shape each img: " + str(len(a)))
+                #         # print ("Shape each img: " + str(a.shape))
+                #     print("Array:" + str(img))
+                #     print("Shape:" + str(img.shape))
+                #     input("Here")
                 batch.append(img)
             batch = numpy.array(batch)
+
+            # print ("Batch shape:" + str(batch.shape))
 
             # batch = numpy.array([
             #     self.preprocess(file_name, self.grayScale, self.imageSize)
